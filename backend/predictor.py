@@ -44,6 +44,19 @@ INDUSTRY_KEYWORDS = {
         "expense", "tax", "gdp", "market", "portfolio", "dividend",
         "equity", "liability", "asset", "balance"
     ],
+    "sales": [
+        "sales", "revenue", "product", "customer", "price", "unit_price",
+        "units_sold", "discount", "profit", "order", "cost", "margin",
+        "region", "channel", "quota", "deal", "pipeline"
+    ],
+    "inventory": [
+        "inventory", "stock", "warehouse", "reorder", "lead_time", "supplier",
+        "sku", "holding_cost", "turnover", "backorder", "logistics", "fulfillment"
+    ],
+    "hr": [
+        "employee", "attrition", "salary", "department", "job_role", "tenure",
+        "performance", "turnover", "satisfaction", "overtime", "leave", "bonus"
+    ],
 }
 
 
@@ -443,6 +456,48 @@ INDUSTRY_RECOMMENDATION_RULES = {
         "low": [
             "Automate periodic re-training as new market data becomes available.",
             "Integrate predictions into monthly financial planning cycles.",
+        ],
+    },
+    "sales": {
+        "high": [
+            "Reallocate quota and marketing resources away from low-margin segments to high-retention enterprise buyers.",
+            "Enforce a maximum promotional discount threshold to halt gross profit erosion.",
+        ],
+        "medium": [
+            "Conduct structured customer loss interviews on recently dropped accounts.",
+            "Bundle complementary products to lift average order value and cross-sell penetration.",
+        ],
+        "low": [
+            "Incorporate predictive deal scoring into weekly sales pipeline inspection calls.",
+            "Calibrate seasonal discount calendar ahead of peak quarter buying cycles.",
+        ],
+    },
+    "inventory": {
+        "high": [
+            "Establish dynamic safety stock thresholds for SKUs in the top demand-velocity decile to prevent stockouts.",
+            "Trigger flash liquidation or supplier returns for stagnant deadstock exceeding 60 days holding.",
+        ],
+        "medium": [
+            "Renegotiate vendor minimum order quantities (MOQs) and buffer lead-time variances.",
+            "Automate reorder trigger points directly integrated with daily POS transaction velocity.",
+        ],
+        "low": [
+            "Audit warehouse space allocation to reduce inventory carrying fees.",
+            "Implement cyclical inventory counting for high-value A-grade stock items.",
+        ],
+    },
+    "hr": {
+        "high": [
+            "Deploy targeted retention packages to high-performing employees in departments showing elevated attrition risk.",
+            "Cap persistent overtime (>15 hrs/month) to mitigate burnout and turnover.",
+        ],
+        "medium": [
+            "Review salary benchmarks across mid-tenure roles to eliminate internal compensation disparities.",
+            "Institute transparent career development milestones and structured mentorship programs.",
+        ],
+        "low": [
+            "Conduct quarterly employee sentiment pulse surveys to catch early disengagement signals.",
+            "Track exit interview root causes to continuously refine retention initiatives.",
         ],
     },
     "generic": {

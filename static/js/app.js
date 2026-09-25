@@ -267,8 +267,14 @@ function switchTab(tabId) {
         renderDashboardReport();
     } else if (tabId === "visualizer") {
         updateChartPreview();
+        if (typeof initAgentAdvisor === 'function' && activeDataset) {
+            initAgentAdvisor(activeDataset);
+        }
     } else if (tabId === "analytics") {
         populateDatasetJoinDropdowns();
+        if (typeof initAgentAdvisor === 'function' && activeDataset) {
+            initAgentAdvisor(activeDataset);
+        }
     } else if (tabId === "predict") {
         if (window.PredictModule && typeof window.PredictModule.init === 'function') {
             window.PredictModule.init();
@@ -4457,6 +4463,9 @@ window.updateAppStateDataset = function() {
     // Async fetch axis suggestions
     if (activeDataset) {
         fetchAxisSuggestions(activeDataset);
+        if (typeof initAgentAdvisor === 'function') {
+            initAgentAdvisor(activeDataset);
+        }
     }
 };
 
@@ -4890,3 +4899,358 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, 300);
 });
+
+// ==========================================
+// AI DATASET INTELLIGENCE & ADVISOR AGENT
+// ==========================================
+let currentAgentProfile = null;
+let agentLoading = false;
+
+async function initAgentAdvisor(filename, force = false) {
+    if (!filename) return;
+
+    // Use cached profile if already loaded for this dataset and not forced
+    if (currentAgentProfile && currentAgentProfile.filename === filename && !force) {
+        renderAgentAnalyticsUI(currentAgentProfile);
+        renderAgentVisualizerUI(currentAgentProfile);
+        return;
+    }
+
+    if (agentLoading) return;
+    agentLoading = true;
+
+    // Show initial loading placeholders
+    const domainPill = document.getElementById('agent-domain-pill');
+    if (domainPill) domainPill.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Detecting domain...';
+    
+    const domainDesc = document.getElementById('agent-domain-desc');
+    if (domainDesc) domainDesc.innerHTML = 'Analyzing dataset ontology, schemas, and historical trends...';
+    
+    const advisorDomain = document.getElementById('advisor-domain-name');
+    if (advisorDomain) advisorDomain.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Shortlisting axes...';
+
+    const pfContainer = document.getElementById('agent-past-future-container');
+    if (pfContainer) {
+        pfContainer.innerHTML = '<div class="placeholder-text"><i class="fa-solid fa-spinner fa-spin"></i> Formulating diagnostic past questions & predictive forecasts...</div>';
+    }
+
+    const problemContainer = document.getElementById('agent-problem-focus-container');
+    if (problemContainer) {
+        problemContainer.innerHTML = '<div class="placeholder-text"><i class="fa-solid fa-spinner fa-spin"></i> Diagnosing sales and inventory bottlenecks...</div>';
+    }
+
+    const recsContainer = document.getElementById('advisor-recs-container');
+    if (recsContainer) {
+        recsContainer.innerHTML = '<div class="advisor-loading"><i class="fa-solid fa-spinner fa-spin"></i> AI shortlisting optimal X and Y axis pairs...</div>';
+    }
+
+    try {
+        const response = await fetch(`/api/agent/profile?file=${encodeURIComponent(filename)}`);
+        const data = await response.json();
+        agentLoading = false;
+
+        if (data.success) {
+            currentAgentProfile = data;
+            renderAgentAnalyticsUI(data);
+            renderAgentVisualizerUI(data);
+        } else {
+            console.warn("Agent profile warning:", data.error);
+        }
+    } catch (err) {
+        agentLoading = false;
+        console.warn("Could not initialize Agent Advisor:", err);
+    }
+}
+
+function renderAgentAnalyticsUI(profile) {
+    if (!profile || !profile.domain) return;
+    const dom = profile.domain;
+
+    // 1. Domain Badge & Description
+    const domainPill = document.getElementById('agent-domain-pill');
+    if (domainPill) {
+        domainPill.innerHTML = `<i class="fa-solid ${dom.icon || 'fa-layer-group'}"></i> ${dom.label} <span class="badge-confidence">${dom.confidence}% match</span>`;
+        if (dom.color) domainPill.style.borderColor = dom.color;
+    }
+
+    const domainDesc = document.getElementById('agent-domain-desc');
+    if (domainDesc) {
+        let keyMetricsHtml = '';
+        if (dom.key_metrics && dom.key_metrics.length > 0) {
+            keyMetricsHtml = `<div class="agent-metrics-row mt-1"><strong>Key Metric Targets:</strong> ${dom.key_metrics.map(m => `<span class="domain-metric-badge">${m}</span>`).join(' ')}</div>`;
+        }
+        domainDesc.innerHTML = `<p class="mb-1">${dom.description}</p>${keyMetricsHtml}`;
+    }
+
+    // 2. Past Questions -> Future Answers
+    const pfContainer = document.getElementById('agent-past-future-container');
+    if (pfContainer && profile.past_to_future_qa && profile.past_to_future_qa.length > 0) {
+        let pfHtml = '';
+        profile.past_to_future_qa.forEach((qa, idx) => {
+            pfHtml += `
+                <div class="past-future-item">
+                    <div class="pf-header">
+                        <span class="pf-past-q"><i class="fa-solid fa-clock-rotate-left text-primary"></i> <strong>Past Inquiry:</strong> ${qa.past_question}</span>
+                    </div>
+                    <div class="pf-body">
+                        <div class="pf-row">
+                            <span class="pf-label pf-label-past">Historical Finding</span>
+                            <span class="pf-val">${qa.past_finding}</span>
+                        </div>
+                        <div class="pf-row">
+                            <span class="pf-label pf-label-future">Future Projection</span>
+                            <span class="pf-val text-accent">${qa.future_projection}</span>
+                        </div>
+                        <div class="pf-row">
+                            <span class="pf-label pf-label-action">Strategic Focus</span>
+                            <span class="pf-val font-medium">${qa.action_focus}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        pfContainer.innerHTML = pfHtml;
+    }
+
+    // 3. Strategic Problem Solver (Sales & Inventory Focus)
+    const probContainer = document.getElementById('agent-problem-focus-container');
+    if (probContainer && profile.business_problems) {
+        const bp = profile.business_problems;
+        const sales = bp.sales_problem_focus || {};
+        const inv = bp.inventory_problem_focus || {};
+
+        let salesHtml = `
+            <div class="problem-card-box sales-problem-box">
+                <div class="pc-header">
+                    <h5><i class="fa-solid fa-chart-line-down text-danger"></i> Sales Problems & Revenue Leakage</h5>
+                    <span class="pc-metric">Metric: ${sales.metric_analyzed || 'Revenue'}</span>
+                </div>
+                <p class="pc-problem-statement">${sales.primary_sales_problem || 'Analyzing revenue dispersion and sales performance.'}</p>
+                <div class="pc-focus-heading"><i class="fa-solid fa-bullseye text-accent"></i> <strong>Where to Focus to Increase Sales:</strong></div>
+                <ul class="pc-focus-list">
+                    ${(sales.focus_recommendations || []).map(r => `<li><i class="fa-solid fa-arrow-right text-accent"></i> ${r}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+
+        let invHtml = `
+            <div class="problem-card-box inventory-problem-box">
+                <div class="pc-header">
+                    <h5><i class="fa-solid fa-boxes-stacked text-warning"></i> Inventory Bottlenecks & Stock Health</h5>
+                    <span class="pc-metric">Tracked: ${inv.metric_tracked || 'Stock Units'}</span>
+                </div>
+                <p class="pc-problem-statement">${inv.primary_inventory_problem || 'Analyzing stockout risks and holding cost variance.'}</p>
+                <div class="pc-focus-heading"><i class="fa-solid fa-bullseye text-warning"></i> <strong>Where to Focus to Optimize Inventory:</strong></div>
+                <ul class="pc-focus-list">
+                    ${(inv.focus_recommendations || []).map(r => `<li><i class="fa-solid fa-arrow-right text-warning"></i> ${r}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+
+        probContainer.innerHTML = salesHtml + invHtml;
+    }
+}
+
+function renderAgentVisualizerUI(profile) {
+    if (!profile) return;
+    const dom = profile.domain || {};
+    const chartRecs = profile.chart_recommendations || {};
+    const recs = chartRecs.recommendations || [];
+
+    const domainNameEl = document.getElementById('advisor-domain-name');
+    if (domainNameEl) {
+        domainNameEl.innerHTML = `<i class="fa-solid ${dom.icon || 'fa-chart-pie'}"></i> ${dom.label || 'Multi-Domain'}`;
+    }
+
+    const domainSubtext = document.getElementById('advisor-domain-subtext');
+    if (domainSubtext) {
+        domainSubtext.textContent = `Shortlisted optimal X and Y axis pairs based on ${dom.label || 'dataset'} business rules`;
+    }
+
+    const container = document.getElementById('advisor-recs-container');
+    if (!container) return;
+
+    if (recs.length === 0) {
+        container.innerHTML = '<div class="advisor-loading">No custom axis recommendations found for this dataset.</div>';
+        return;
+    }
+
+    let cardsHtml = '';
+    recs.forEach((rec, idx) => {
+        const isBest = idx === 0;
+        cardsHtml += `
+            <div class="advisor-rec-card ${isBest ? 'recommended-primary' : ''}">
+                <div class="rec-badge-row">
+                    <span class="rec-type-badge"><i class="fa-solid fa-chart-simple"></i> ${(rec.chart_type || 'chart').toUpperCase()}</span>
+                    ${isBest ? '<span class="badge badge-best"><i class="fa-solid fa-crown text-warning"></i> Recommended Axes</span>' : '<span class="badge badge-alternative">Alternative</span>'}
+                </div>
+                <h4 class="rec-card-title">${rec.name}</h4>
+                <div class="rec-axes-spec">
+                    <div class="rec-axis-item">
+                        <span class="axis-tag axis-x">X-Axis</span>
+                        <strong class="axis-name" title="${rec.x_axis}">${rec.x_axis}</strong>
+                    </div>
+                    <div class="rec-axis-item">
+                        <span class="axis-tag axis-y">Y-Axis</span>
+                        <strong class="axis-name" title="${rec.y_axis}">${rec.y_axis} <span class="agg-tag">(${rec.aggregation})</span></strong>
+                    </div>
+                </div>
+                <p class="rec-reason-text">${rec.reason}</p>
+                <button type="button" class="btn btn-sm ${isBest ? 'btn-primary' : 'btn-secondary'} w-100 rec-apply-btn" onclick="applyAgentRecommendation(${idx})">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Apply to Builder
+                </button>
+            </div>
+        `;
+    });
+
+    container.innerHTML = cardsHtml;
+}
+
+function applyAgentRecommendation(recIndex) {
+    if (!currentAgentProfile || !currentAgentProfile.chart_recommendations) return;
+    const recs = currentAgentProfile.chart_recommendations.recommendations || [];
+    const rec = recs[recIndex];
+    if (!rec) return;
+
+    // 1. Set Chart Type
+    const typeSelect = document.getElementById('chart-type');
+    if (typeSelect && rec.chart_type) {
+        typeSelect.value = rec.chart_type;
+    }
+
+    // 2. Set X-Axis
+    const xSelect = document.getElementById('chart-x-axis');
+    if (xSelect && rec.x_axis) {
+        // Ensure option exists, if not create
+        let found = Array.from(xSelect.options).some(opt => opt.value === rec.x_axis);
+        if (!found) {
+            const opt = document.createElement('option');
+            opt.value = rec.x_axis;
+            opt.textContent = rec.x_axis;
+            xSelect.appendChild(opt);
+        }
+        xSelect.value = rec.x_axis;
+    }
+
+    // 3. Set Y-Axis
+    const ySelect = document.getElementById('chart-y-axis');
+    if (ySelect && rec.y_axis) {
+        let found = Array.from(ySelect.options).some(opt => opt.value === rec.y_axis);
+        if (!found) {
+            const opt = document.createElement('option');
+            opt.value = rec.y_axis;
+            opt.textContent = rec.y_axis;
+            ySelect.appendChild(opt);
+        }
+        ySelect.value = rec.y_axis;
+    }
+
+    // 4. Set Aggregation
+    const aggSelect = document.getElementById('chart-aggregation');
+    if (aggSelect && rec.aggregation) {
+        aggSelect.value = rec.aggregation;
+    }
+
+    // 5. Set Chart Title
+    const titleInput = document.getElementById('chart-title');
+    if (titleInput && rec.title) {
+        titleInput.value = rec.title;
+    }
+
+    // 6. Update chart preview
+    if (typeof updateChartPreview === 'function') {
+        updateChartPreview();
+    }
+
+    showToast("Axes Shortlisted & Applied", `Configured ${rec.name}: X='${rec.x_axis}', Y='${rec.y_axis}' (${rec.aggregation}).`, "success");
+}
+
+function autoSelectBestAxes() {
+    if (currentAgentProfile && currentAgentProfile.chart_recommendations) {
+        applyAgentRecommendation(0);
+    } else if (activeDataset) {
+        initAgentAdvisor(activeDataset, true).then(() => {
+            applyAgentRecommendation(0);
+        });
+    } else {
+        showToast("No Dataset", "Please select a dataset to auto-shortlist axes.", "warning");
+    }
+}
+
+function refreshAgentProfile() {
+    if (!activeDataset) {
+        showToast("No Dataset", "Please load a dataset first.", "warning");
+        return;
+    }
+    showToast("Agent Refreshing", "Re-analyzing dataset domain, axes, and bottlenecks...", "info");
+    initAgentAdvisor(activeDataset, true);
+}
+
+function askAgentChip(promptText) {
+    const input = document.getElementById('agent-question-input');
+    if (input) {
+        input.value = promptText;
+        submitAgentQuestion();
+    }
+}
+
+async function submitAgentQuestion() {
+    const input = document.getElementById('agent-question-input');
+    if (!input) return;
+    const question = input.value.trim();
+    if (!question) {
+        showToast("Question Needed", "Please enter a question to ask the agent.", "warning");
+        return;
+    }
+
+    if (!activeDataset) {
+        showToast("No Dataset", "Please select a dataset first.", "warning");
+        return;
+    }
+
+    const answerBox = document.getElementById('agent-answer-box');
+    const answerTopic = document.getElementById('agent-answer-topic');
+    const answerText = document.getElementById('agent-answer-text');
+
+    if (answerBox) answerBox.classList.remove('hidden');
+    if (answerTopic) answerTopic.textContent = 'Agent Analyzing...';
+    if (answerText) answerText.innerHTML = '<div class="loading-agent-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Calculating dataset metrics and formulating strategic answer...</div>';
+
+    try {
+        const response = await fetch('/api/agent/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file: activeDataset, question: question })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            if (answerTopic) answerTopic.textContent = data.topic || 'Dataset Intelligence Response';
+            if (answerText) {
+                // Convert newlines to formatted paragraphs
+                const formatted = data.answer.split('\n\n').map(p => `<p>${p}</p>`).join('');
+                answerText.innerHTML = formatted;
+            }
+        } else {
+            if (answerTopic) answerTopic.textContent = 'Agent Notice';
+            if (answerText) answerText.innerHTML = `<p class="text-danger">${data.error || 'Could not process query.'}</p>`;
+        }
+    } catch (e) {
+        if (answerTopic) answerTopic.textContent = 'Error';
+        if (answerText) answerText.innerHTML = `<p class="text-danger">Agent communication failed: ${e.message}</p>`;
+    }
+}
+
+function closeAgentAnswer() {
+    const answerBox = document.getElementById('agent-answer-box');
+    if (answerBox) answerBox.classList.add('hidden');
+}
+
+// Global exports
+window.initAgentAdvisor = initAgentAdvisor;
+window.applyAgentRecommendation = applyAgentRecommendation;
+window.autoSelectBestAxes = autoSelectBestAxes;
+window.refreshAgentProfile = refreshAgentProfile;
+window.askAgentChip = askAgentChip;
+window.submitAgentQuestion = submitAgentQuestion;
+window.closeAgentAnswer = closeAgentAnswer;

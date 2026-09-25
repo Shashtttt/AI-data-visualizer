@@ -1163,6 +1163,100 @@
 
                 <div class="analytics-layout">
                     
+                    <!-- Autonomous Dataset Intelligence & Problem Solver Agent -->
+                    <div class="glass-card agent-suite-card full-width-card margin-bottom" id="agent-suite-card">
+                        <div class="agent-suite-header">
+                            <div class="agent-title-block">
+                                <div class="agent-avatar-icon">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </div>
+                                <div>
+                                    <div class="agent-pill-row">
+                                        <span class="agent-badge"><span class="pulse-dot"></span> AI Dataset Intelligence Agent</span>
+                                        <span class="domain-tag" id="agent-domain-pill"><i class="fa-solid fa-layer-group"></i> Detecting domain...</span>
+                                    </div>
+                                    <h2 class="agent-main-title">Executive Dataset Intelligence & Problem Solving Agent</h2>
+                                </div>
+                            </div>
+                            <div class="agent-quick-actions">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="refreshAgentProfile()" title="Re-analyze dataset">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Refresh Agent
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm btn-glow" onclick="switchTab('visualizer')" title="Auto-build visual">
+                                    <i class="fa-solid fa-chart-column"></i> Auto-Generate Visuals
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Strategic Domain Context -->
+                        <div class="agent-domain-summary-box">
+                            <div class="summary-icon"><i class="fa-solid fa-circle-info"></i></div>
+                            <div class="summary-text" id="agent-domain-desc">
+                                Loading dataset domain and business context...
+                            </div>
+                        </div>
+
+                        <!-- 2 Key Agent Pillars: Past-to-Future Q&A and Strategic Problem Resolution -->
+                        <div class="agent-pillars-grid">
+                            <!-- Pillar 1: Past-to-Future Diagnostic Q&A -->
+                            <div class="agent-subcard">
+                                <div class="subcard-header">
+                                    <h4><i class="fa-solid fa-clock-rotate-left text-primary"></i> Past Questions → Future Trajectories</h4>
+                                    <span class="subcard-tag">Diagnostic Analytics</span>
+                                </div>
+                                <div class="past-future-list" id="agent-past-future-container">
+                                    <p class="placeholder-text"><i class="fa-solid fa-spinner fa-spin"></i> Analyzing historical variance and correlations...</p>
+                                </div>
+                            </div>
+
+                            <!-- Pillar 2: Prescriptive Problem Solver (Sales & Inventory Focus) -->
+                            <div class="agent-subcard">
+                                <div class="subcard-header">
+                                    <h4><i class="fa-solid fa-bullseye text-accent"></i> Strategic Focus & Problem Resolution</h4>
+                                    <span class="subcard-tag">Prescriptive AI</span>
+                                </div>
+                                <div class="problem-focus-container" id="agent-problem-focus-container">
+                                    <p class="placeholder-text"><i class="fa-solid fa-spinner fa-spin"></i> Formulating sales and inventory focus recommendations...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pillar 3: Interactive Copilot Q&A -->
+                        <div class="agent-interactive-box">
+                            <div class="interactive-header">
+                                <h4><i class="fa-solid fa-comments text-secondary"></i> Ask the Dataset Intelligence Agent</h4>
+                                <span class="interactive-hint">Ask past data trends, sales bottleneck analysis, or inventory guidance</span>
+                            </div>
+                            <div class="agent-prompt-chips">
+                                <button type="button" class="prompt-chip" onclick="askAgentChip('What are my major sales problems and where should I focus?')">
+                                    💰 Where are sales risks?
+                                </button>
+                                <button type="button" class="prompt-chip" onclick="askAgentChip('What inventory items or stock levels require immediate attention?')">
+                                    📦 Inventory bottleneck focus
+                                </button>
+                                <button type="button" class="prompt-chip" onclick="askAgentChip('What is the strategic overview and primary growth drivers of this dataset?')">
+                                    📊 Strategic dataset summary
+                                </button>
+                                <button type="button" class="prompt-chip" onclick="askAgentChip('How can we optimize pricing and margins based on past patterns?')">
+                                    🏷️ Margin & pricing optimization
+                                </button>
+                            </div>
+                            <div class="agent-input-row">
+                                <input type="text" id="agent-question-input" placeholder="Ask a question about sales, inventory, drivers, or where to focus..." onkeydown="if(event.key==='Enter') submitAgentQuestion()">
+                                <button type="button" class="btn btn-accent btn-sm" onclick="submitAgentQuestion()">
+                                    <i class="fa-solid fa-paper-plane"></i> Ask Agent
+                                </button>
+                            </div>
+                            <div id="agent-answer-box" class="agent-answer-box hidden">
+                                <div class="answer-header">
+                                    <span class="answer-topic" id="agent-answer-topic">Analysis</span>
+                                    <button type="button" class="btn-close-answer" onclick="closeAgentAnswer()"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                                <div class="answer-content" id="agent-answer-text"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Tool 1: Outlier & Anomaly Scanner -->
                     <div class="glass-card analytics-card">
                         <div class="card-header">
@@ -1299,12 +1393,30 @@
                     </div>
                 </div>
 
+                <!-- AI Smart Chart Recommender Banner -->
+                <div class="glass-card ai-chart-advisor-banner margin-bottom" id="ai-chart-advisor-banner">
+                    <div class="advisor-banner-header">
+                        <div class="advisor-badge-title">
+                            <span class="pulse-dot"></span>
+                            <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
+                            <strong>AI Auto-Chart Recommender</strong>: <span id="advisor-domain-name" class="advisor-domain-pill">Auto-Detecting...</span>
+                        </div>
+                        <span class="advisor-subtext" id="advisor-domain-subtext">X and Y axes shortlisted automatically based on dataset schema & domain intelligence</span>
+                    </div>
+                    <div class="advisor-recommendations-grid" id="advisor-recs-container">
+                        <div class="advisor-loading"><i class="fa-solid fa-spinner fa-spin"></i> Shortlisting optimal X and Y axes...</div>
+                    </div>
+                </div>
+
                 <div class="visualizer-layout">
                     <!-- Config Sidebar -->
                     <div class="config-sidebar">
                         <div class="glass-card config-card">
                             <div class="card-header">
                                 <h3><i class="fa-solid fa-sliders text-primary"></i> Visual Configuration</h3>
+                                <button type="button" class="btn btn-sm btn-secondary btn-auto-axes" onclick="autoSelectBestAxes()" title="Automatically select optimal X and Y axes">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-accent"></i> Auto Axes
+                                </button>
                             </div>
                             
                             <div class="form-group">

@@ -22,6 +22,7 @@ import db
 import cleaner
 import firebase_storage_helper as fb
 import share_manager
+import agent_advisor
 
 # Helper: get current user UID from session
 def _current_uid() -> str:
@@ -363,7 +364,67 @@ def suggest_axes_route():
 
     try:
         suggestions = cleaner.suggest_axes(filepath)
+        df = agent_advisor.load_df(filepath)
+        agent_recs = agent_advisor.recommend_chart_axes(df, filename)
+        suggestions["domain"] = agent_recs["domain"]
+        suggestions["agent_recommendations"] = agent_recs["recommendations"]
+        suggestions["best_x"] = agent_recs["best_x"]
+        suggestions["best_y"] = agent_recs["best_y"]
+        suggestions["best_chart_type"] = agent_recs["best_chart_type"]
         return jsonify({"success": True, "suggestions": suggestions}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/agent/profile', methods=['GET', 'POST'])
+@login_required
+def get_agent_profile():
+    filename = request.args.get('file')
+    if not filename and request.is_json:
+        filename = (request.get_json() or {}).get('file')
+    if not filename:
+        return jsonify({"error": "Parameter 'file' is required."}), 400
+
+    filename = os.path.basename(filename)
+    filepath = os.path.join(DATASETS_DIR, filename)
+    if not os.path.exists(filepath):
+        return jsonify({"error": f"File '{filename}' does not exist."}), 404
+
+    try:
+        df = agent_advisor.load_df(filepath)
+        domain_info = agent_advisor.detect_detailed_industry(df, filename)
+        chart_recs = agent_advisor.recommend_chart_axes(df, filename)
+        past_future_qa = agent_advisor.generate_past_to_future_qa(df, domain_info)
+        business_problems = agent_advisor.solve_business_problems(df, domain_info)
+
+        return jsonify({
+            "success": True,
+            "filename": filename,
+            "domain": domain_info,
+            "chart_recommendations": chart_recs,
+            "past_to_future_qa": past_future_qa,
+            "business_problems": business_problems
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/agent/ask', methods=['POST'])
+@login_required
+def ask_agent_route():
+    data = request.get_json() or {}
+    filename = data.get('file') or data.get('filename')
+    question = data.get('question')
+    if not filename or not question:
+        return jsonify({"error": "Parameters 'file' and 'question' are required."}), 400
+
+    filename = os.path.basename(filename)
+    filepath = os.path.join(DATASETS_DIR, filename)
+    if not os.path.exists(filepath):
+        return jsonify({"error": f"File '{filename}' does not exist."}), 404
+
+    try:
+        df = agent_advisor.load_df(filepath)
+        res = agent_advisor.answer_agent_question(df, question, filename)
+        return jsonify({"success": True, "answer": res["answer"], "topic": res["topic"]}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
