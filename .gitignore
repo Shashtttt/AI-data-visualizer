@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+
+# Environment & Secrets — NEVER commit these
+.env
+serviceAccountKey.json
+
+# Database (local only)
+users.db
+show_db.py
+
+# Datasets (user data)
+datasets/
+
+# IDE & Agent scratch files
+.gemini/
+.vscode/
+.idea/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

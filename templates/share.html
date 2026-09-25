@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherBI — Shared Analysis</title>
+  <meta name="description" content="Shared data analysis from AetherBI — interactive charts and insights.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1a2235;
+      --border: #2a3650;
+      --accent: #6366f1;
+      --accent2: #8b5cf6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .share-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .share-badge {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #818cf8;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .cta-btn {
+      background: var(--gradient);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; }
+    .share-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    .share-meta {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .share-meta h1 { font-size: 1.4rem; font-weight: 700; }
+    .share-meta p { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; }
+    .meta-stats { display: flex; gap: 1.5rem; }
+    .meta-stat { text-align: center; }
+    .meta-stat .val { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+    .meta-stat .lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 1.5rem;
+    }
+    .chart-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .chart-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .chart-wrap { position: relative; height: 280px; }
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 1rem;
+    }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 3px solid rgba(99,102,241,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    .error-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .error-state h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .error-state p { color: var(--text-muted); }
+    .kpi-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .kpi-val { font-size: 2rem; font-weight: 800; color: var(--accent); }
+    .kpi-label { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.4rem; }
+    .read-only-note {
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="share-header">
+    <div class="logo">⚡ AetherBI</div>
+    <span class="share-badge">📤 Shared Analysis</span>
+    <a href="/" class="cta-btn">🚀 Create Your Own</a>
+  </header>
+
+  <div class="share-container" id="shareContainer">
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <p>Loading shared analysis…</p>
+    </div>
+    <div id="shareContent" style="display:none"></div>
+    <div class="error-state" id="errorState" style="display:none">
+      <div class="error-icon">🔗</div>
+      <h2>Share Link Expired or Not Found</h2>
+      <p>This share link may have expired or been revoked by the owner.</p>
+      <br>
+      <a href="/" class="cta-btn">← Back to AetherBI</a>
+    </div>
+  </div>
+
+  <script>
+    const SHARE_TOKEN = {{ token | tojson }};
+    const CHART_COLORS = [
+      'rgba(99,102,241,0.85)', 'rgba(139,92,246,0.85)', 'rgba(6,182,212,0.85)',
+      'rgba(16,185,129,0.85)', 'rgba(245,158,11,0.85)', 'rgba(239,68,68,0.85)',
+    ];
+    const activeCharts = [];
+
+    async function loadShare() {
+      try {
+        const resp = await fetch(/api/share/data/);
+        const data = await resp.json();
+        if (!data.success) { showError(); return; }
+        renderShare(data);
+      } catch(e) {
+        showError();
+      }
+    }
+
+    function showError() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+    }
+
+    function renderShare(data) {
+      document.getElementById('loadingState').style.display = 'none';
+      const content = document.getElementById('shareContent');
+      content.style.display = 'block';
+      const payload = data.payload || {};
+      const charts = payload.charts || payload.savedCharts || [];
+      const createdDate = data.created_at ? new Date(data.created_at).toLocaleDateString() : 'Unknown';
+
+      content.innerHTML = 
+        <div class="share-meta">
+          <div>
+            <h1></h1>
+            <p>Shared on  &bull;  visualization</p>
+          </div>
+          <div class="meta-stats">
+            <div class="meta-stat"><div class="val"></div><div class="lbl">Charts</div></div>
+            <div class="meta-stat"><div class="val"></div><div class="lbl">Views</div></div>
+          </div>
+        </div>
+        <div class="charts-grid" id="chartsGrid"></div>
+        <div class="read-only-note">
+          🔒 This is a read-only shared view. <a href="/" style="color:#818cf8">Create your own analysis on AetherBI →</a>
+        </div>
+      ;
+
+      const grid = document.getElementById('chartsGrid');
+      if (charts.length === 0) {
+        grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:3rem;">No charts in this shared analysis.</p>';
+        return;
+      }
+
+      charts.forEach((chart, i) => {
+        const card = document.createElement('div');
+        card.className = 'chart-card';
+        card.innerHTML = <h3></h3><div class="chart-wrap"><canvas id="sc_"></canvas></div>;
+        grid.appendChild(card);
+        renderChart(sc_, chart);
+      });
+    }
+
+    function renderChart(canvasId, chartConfig) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+      const chartData = chartConfig.chartData || chartConfig.data || [];
+      const xCol = chartConfig.x_col || chartConfig.xCol || 'x';
+      const yCol = chartConfig.y_col || chartConfig.yCol || 'y';
+      const chartType = (chartConfig.type || chartConfig.chartType || 'bar').toLowerCase();
+      const labels = chartData.map(d => String(d[xCol] || d.label || ''));
+      const values = chartData.map(d => Number(d[yCol] || d.value || 0));
+
+      const cfg = {
+        type: chartType === 'column' ? 'bar' : chartType,
+        data: {
+          labels,
+          datasets: [{
+            label: yCol,
+            data: values,
+            backgroundColor: CHART_COLORS,
+            borderColor: CHART_COLORS,
+            borderWidth: 2,
+            fill: chartType === 'area',
+            tension: 0.4,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#94a3b8', maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      };
+      if (chartType === 'pie' || chartType === 'doughnut') {
+        delete cfg.options.scales;
+        cfg.options.plugins.legend = { display: true, labels: { color: '#e2e8f0' } };
+      }
+      activeCharts.push(new Chart(ctx, cfg));
+    }
+
+    loadShare();
+  </script>
+</body>
+</html>
