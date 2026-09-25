@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Analyzer - Next-Gen Dataset Visualizer & BI Report Builder</title>
-    <meta name="description" content="Data Analyzer helps you upload, clean, and visualize your datasets with interactive dashboards and charts in a gorgeous glassmorphic interface.">
+    <title>AI Visualizer - Next-Gen Dataset Visualizer & BI Report Builder</title>
+    <meta name="description" content="AI Visualizer helps you upload, clean, and visualize your datasets with interactive dashboards and charts in a gorgeous glassmorphic interface.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,7 +55,7 @@
                 Turn Raw Data into <span class="gradient-text">Interactive Insights</span> & Visual Reports
             </h1>
             <p class="landing-hero-desc">
-                Data Analyzer helps data teams upload, clean, analyze, and visualize complex datasets in seconds with AI copilot assistance, predictive analytics, and publication-ready executive dashboards.
+                AI Visualizer helps data teams upload, clean, analyze, and visualize complex datasets in seconds with AI copilot assistance, predictive analytics, and publication-ready executive dashboards.
             </p>
 
             <!-- Live Metrics Strip -->
@@ -102,7 +102,7 @@
                         <i class="fa-solid fa-chart-column feature-icon"></i>
                     </div>
                     <div>
-                        <h4>Data Analyzer Visuals</h4>
+                        <h4>AI Visualizer Visuals</h4>
                         <p>Over 32 visual chart styles with rich color palettes, data labels & high-res vector PDF/PNG export.</p>
                     </div>
                 </div>
@@ -134,7 +134,7 @@
                 <div class="brand-badge-icon">
                     <i class="fa-solid fa-chart-line logo-icon"></i>
                 </div>
-                <h1>Data <span>Analyzer</span></h1>
+                <h1>AI <span>Visualizer</span></h1>
             </div>
             <p class="auth-subtitle">Transform raw datasets into stunning visual reports</p>
             
@@ -203,160 +203,597 @@
     </div>
 
     <!-- ================= MAIN APP VIEW ================= -->
-    <div id="app-view" class="app-container hidden">
-        <!-- Top Navigation Bar (Navbar) -->
-        <header class="top-navbar" id="top-navbar">
-            <div class="navbar-brand" onclick="switchTab('datasets')" style="cursor:pointer;" title="Data Analyzer Home">
-                <div class="brand-badge-icon small">
-                    <i class="fa-solid fa-chart-line logo-icon"></i>
+    <div id="app-view" class="app-container app-layout-sidebar hidden">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+        <!-- Left Vertical Sidebar (Matching Screenshot) -->
+        <aside class="app-sidebar" id="app-sidebar">
+            <!-- Sidebar Header & Logo -->
+            <div class="sidebar-brand" onclick="switchTab('home')" style="cursor:pointer;" title="AI Visualizer Home">
+                <div class="brand-logo-mark">
+                    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="sidebarLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00f2fe"/>
+                                <stop offset="50%" stop-color="#3b82f6"/>
+                                <stop offset="100%" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                            <linearGradient id="sidebarLogoInner" x1="100%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ff007f"/>
+                                <stop offset="100%" stop-color="#7c3aed"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M17 3L31 28H3L17 3Z" fill="url(#sidebarLogoGrad)"/>
+                        <path d="M17 11L25 25H9L17 11Z" fill="#0b0f19"/>
+                        <path d="M17 16L22 25H12L17 16Z" fill="url(#sidebarLogoInner)"/>
+                    </svg>
                 </div>
-                <h2>Data <span>Analyzer</span></h2>
-                <span class="brand-tag">v2.0</span>
+                <div class="brand-text-block">
+                    <h2 class="brand-title">AI Visualizer</h2>
+                    <span class="brand-tagline">From Data to Decisions</span>
+                </div>
             </div>
 
-            <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
-                <i class="fa-solid fa-bars" id="mobile-menu-icon"></i>
-            </button>
-            
-            <div class="mobile-menu-backdrop" onclick="closeMobileMenu()"></div>
+            <!-- Sidebar Navigation Menu -->
+            <nav class="sidebar-nav">
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-nav-item active" data-tab="home" onclick="switchTab('home'); toggleSidebar(false);">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Home</span>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab="datasets" onclick="switchTab('datasets'); toggleSidebar(false);">
+                        <i class="fa-solid fa-database"></i>
+                        <span>Dataset Warehouse</span>
+                    </li>
+                    <li class="sidebar-nav-item disabled" id="nav-cleaner" data-tab="cleaner" onclick="switchTab('cleaner'); toggleSidebar(false);">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>Data Cleaner</span>
+                    </li>
+                    <li class="sidebar-nav-item disabled" id="nav-analytics" data-tab="analytics" onclick="switchTab('analytics'); toggleSidebar(false);">
+                        <i class="fa-solid fa-brain"></i>
+                        <span>Smart Analytics</span>
+                    </li>
+                    <li class="sidebar-nav-item disabled" id="nav-visualizer" data-tab="visualizer" onclick="switchTab('visualizer'); toggleSidebar(false);">
+                        <i class="fa-solid fa-chart-column"></i>
+                        <span>Graph Builder</span>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab="dashboard" onclick="switchTab('dashboard'); toggleSidebar(false);">
+                        <i class="fa-solid fa-table-columns"></i>
+                        <span>Dashboard Report</span>
+                    </li>
+                    <li class="sidebar-nav-item" id="nav-predict" data-tab="predict" onclick="switchTab('predict'); toggleSidebar(false);">
+                        <i class="fa-solid fa-microchip"></i>
+                        <span>Predictive AI</span>
+                    </li>
+                </ul>
 
-            <nav class="navbar-nav" id="navbar-nav">
-                <ul class="nav-links">
-                    <li class="nav-item active" data-tab="datasets" onclick="switchTab('datasets'); closeMobileMenu();">
-                        <i class="fa-solid fa-database"></i> <span>Datasets</span>
+                <div class="sidebar-divider"></div>
+
+                <ul class="sidebar-menu-list secondary-menu">
+                    <li class="sidebar-nav-item" onclick="openAiKeyModal()">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
                     </li>
-                    <li class="nav-item disabled" id="nav-cleaner" data-tab="cleaner" onclick="switchTab('cleaner'); closeMobileMenu();">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Data Cleaner</span>
-                    </li>
-                    <li class="nav-item disabled" id="nav-analytics" data-tab="analytics" onclick="switchTab('analytics'); closeMobileMenu();">
-                        <i class="fa-solid fa-brain"></i> <span>Smart Analytics</span>
-                    </li>
-                    <li class="nav-item disabled" id="nav-visualizer" data-tab="visualizer" onclick="switchTab('visualizer'); closeMobileMenu();">
-                        <i class="fa-solid fa-chart-column"></i> <span>Graph Builder</span>
-                    </li>
-                    <li class="nav-item" data-tab="dashboard" onclick="switchTab('dashboard'); closeMobileMenu();">
-                        <i class="fa-solid fa-table-columns"></i> <span>Dashboard Report</span>
-                    </li>
-                    <li class="nav-item" id="nav-predict" data-tab="predict" onclick="switchTab('predict'); closeMobileMenu();">
-                        <i class="fa-solid fa-robot"></i> <span>Predictive AI</span>
+                    <li class="sidebar-nav-item" onclick="handleLogout()">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
                     </li>
                 </ul>
             </nav>
 
-            <div class="navbar-actions">
-                <!-- Command Palette Trigger Button -->
-                <button type="button" class="btn-cmd-trigger" onclick="openCommandPalette()" title="Command Palette (Ctrl+K)">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <span class="cmd-text">Actions</span>
-                    <kbd>Ctrl+K</kbd>
-                </button>
-
-                <!-- Dataset Switcher Dropdown -->
-                <div class="dataset-switcher-wrapper" id="dataset-switcher-wrapper">
-                    <button type="button" class="dataset-switcher-btn" onclick="toggleDatasetSwitcherMenu(event)" title="Switch Dataset">
-                        <i class="fa-solid fa-database text-primary"></i>
-                        <span id="nav-active-dataset-name">Select Dataset</span>
-                        <i class="fa-solid fa-chevron-down arrow-icon"></i>
-                    </button>
-                    <div class="dataset-switcher-menu hidden" id="dataset-switcher-menu">
-                        <div class="menu-section-header"><i class="fa-solid fa-folder"></i> Active & Loaded Files</div>
-                        <div id="nav-datasets-list-container" class="nav-datasets-list scrollable">
-                            <p class="menu-empty-text">No dataset loaded</p>
-                        </div>
-                        <div class="menu-section-header"><i class="fa-solid fa-bolt"></i> Quick Sample Datasets</div>
-                        <div class="menu-sample-item" onclick="loadSampleDataset('sales_data.csv')">
-                            <i class="fa-solid fa-chart-line text-primary"></i> 
-                            <div>
-                                <span class="sample-name">Sales Performance Data</span>
-                                <span class="sample-desc">CSV • 100 rows • Revenue & Profit</span>
-                            </div>
-                        </div>
-                        <div class="menu-sample-item" onclick="loadSampleDataset('student_scores.xlsx')">
-                            <i class="fa-solid fa-graduation-cap text-secondary"></i> 
-                            <div>
-                                <span class="sample-name">Student Scores & Attendance</span>
-                                <span class="sample-desc">Excel • 100 rows • Grades & GPA</span>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Bottom Graphic Box in Sidebar (Matching Screenshot) -->
+            <div class="sidebar-bottom-badge">
+                <div class="peaks-graphic">
+                    <svg width="170" height="85" viewBox="0 0 170 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="sbPeak1" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+                                <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.1"/>
+                            </linearGradient>
+                            <linearGradient id="sbPeak2" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#818cf8" stop-opacity="0.9"/>
+                                <stop offset="100%" stop-color="#0f172a" stop-opacity="0.2"/>
+                            </linearGradient>
+                        </defs>
+                        <polygon points="85,10 135,75 35,75" fill="url(#sbPeak2)" stroke="#818cf8" stroke-width="1.5" stroke-linejoin="round"/>
+                        <polygon points="50,28 90,78 10,78" fill="url(#sbPeak1)" stroke="#38bdf8" stroke-width="1.2" stroke-linejoin="round"/>
+                        <polygon points="120,26 160,78 80,78" fill="url(#sbPeak1)" stroke="#38bdf8" stroke-width="1.2" stroke-linejoin="round"/>
+                        <polygon points="85,10 105,45 65,45" fill="#c084fc" opacity="0.35"/>
+                        <line x1="85" y1="10" x2="85" y2="75" stroke="#a5b4fc" stroke-width="1" stroke-dasharray="2 2"/>
+                        <circle cx="85" cy="10" r="3" fill="#67e8f9"/>
+                    </svg>
                 </div>
-
-                <div class="active-dataset-pill hidden" id="sidebar-active-dataset">
-                    <i class="fa-solid fa-file-csv file-indicator"></i>
-                    <span id="sidebar-dataset-name" class="name">No file</span>
-                    <span id="sidebar-dataset-rows" class="rows">0 rows</span>
-                </div>
-
-                <!-- 1-Click Quick Dark / Light Mode Toggle -->
-                <button type="button" class="btn-quick-theme-toggle" id="btn-quick-theme-toggle" onclick="toggleQuickDarkLight()" title="Toggle Dark/Light Mode (Shift+T)">
-                    <i class="fa-solid fa-moon" id="navbar-theme-icon"></i>
-                </button>
-
-                <!-- Theme Selection Dropdown -->
-                <div class="theme-dropdown-wrapper">
-                    <button type="button" class="theme-dropdown-btn" onclick="toggleThemeDropdown(event)" title="Change Color Theme">
-                        <i class="fa-solid fa-palette"></i>
-                        <span id="current-theme-label">Cosmic Neon</span>
-                        <i class="fa-solid fa-chevron-down arrow-icon"></i>
-                    </button>
-                    <div class="theme-dropdown-menu hidden" id="theme-dropdown-menu">
-                        <div class="theme-option-item active" data-theme="cosmic" onclick="selectTheme('cosmic')">
-                            <span class="theme-dot cosmic-dot"></span>
-                            <span class="theme-name">Cosmic Neon</span>
-                        </div>
-                        <div class="theme-option-item" data-theme="oled-black" onclick="selectTheme('oled-black')">
-                            <span class="theme-dot oled-dot"></span>
-                            <span class="theme-name">OLED Pitch Black</span>
-                        </div>
-                        <div class="theme-option-item" data-theme="cyber-slate" onclick="selectTheme('cyber-slate')">
-                            <span class="theme-dot slate-dot"></span>
-                            <span class="theme-name">Cyber Slate</span>
-                        </div>
-                        <div class="theme-option-item" data-theme="dracula" onclick="selectTheme('dracula')">
-                            <span class="theme-dot dracula-dot"></span>
-                            <span class="theme-name">Dracula Amethyst</span>
-                        </div>
-                        <div class="theme-option-item" data-theme="midnight-ocean" onclick="selectTheme('midnight-ocean')">
-                            <span class="theme-dot ocean-dot"></span>
-                            <span class="theme-name">Midnight Ocean</span>
-                        </div>
-                        <div class="theme-option-item" data-theme="ember" onclick="selectTheme('ember')">
-                            <span class="theme-dot ember-dot"></span>
-                            <span class="theme-name">Ember Blaze</span>
-                        </div>
-                        <div class="theme-option-item" data-theme="aurora" onclick="selectTheme('aurora')">
-                            <span class="theme-dot aurora-dot"></span>
-                            <span class="theme-name">Aurora Emerald</span>
-                        </div>
-                        <div class="theme-option-item" data-theme="light" onclick="selectTheme('light')">
-                            <span class="theme-dot light-dot"></span>
-                            <span class="theme-name">Frosted Light</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn-ai-key-config" onclick="openAiKeyModal()" title="AI Copilot Configuration">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span>AI Settings</span>
-                </button>
-
-                <div class="user-profile-badge">
-                    <div class="avatar">
-                        <i class="fa-solid fa-user-astronaut"></i>
-                    </div>
-                    <span id="user-display-name" class="username">Guest User</span>
-                </div>
-
-                <button class="btn btn-logout-icon" onclick="handleLogout()" title="Log Out">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
+                <div class="bottom-brand-text">AI Visualizer</div>
+                <div class="bottom-brand-sub">Smarter Data • Better Decisions</div>
             </div>
-        </header>
+        </aside>
 
-        <!-- Main Dashboard Workspace -->
-        <main class="workspace-content">
-            
-            <!-- ====== DATASETS PANEL ====== -->
-            <section id="panel-datasets" class="tab-panel active">
+        <!-- Right Main Layout -->
+        <div class="app-main-layout">
+            <!-- Topbar (Matching Screenshot) -->
+            <header class="top-navbar-v2" id="top-navbar">
+                <div class="topbar-left">
+                    <button type="button" class="mobile-menu-toggle" id="mobile-sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <!-- Global Search Bar with Ctrl+K -->
+                    <div class="global-search-container" onclick="openCommandPalette()">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" placeholder="Search datasets, ask questions, or explore analytics..." readonly>
+                        <kbd class="search-kbd">⌘ K</kbd>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Quick Dataset Switcher -->
+                    <div class="dataset-switcher-wrapper" id="dataset-switcher-wrapper">
+                        <button type="button" class="dataset-switcher-btn" onclick="toggleDatasetSwitcherMenu(event)" title="Switch Dataset">
+                            <i class="fa-solid fa-database text-primary"></i>
+                            <span id="nav-active-dataset-name">Select Dataset</span>
+                            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                        </button>
+                        <div class="dataset-switcher-menu hidden" id="dataset-switcher-menu">
+                            <div class="menu-section-header"><i class="fa-solid fa-folder"></i> Active & Loaded Files</div>
+                            <div id="nav-datasets-list-container" class="nav-datasets-list scrollable">
+                                <p class="menu-empty-text">No dataset loaded</p>
+                            </div>
+                            <div class="menu-section-header"><i class="fa-solid fa-bolt"></i> Quick Sample Datasets</div>
+                            <div class="menu-sample-item" onclick="loadSampleDataset('sales_data.csv')">
+                                <i class="fa-solid fa-chart-line text-primary"></i> 
+                                <div>
+                                    <span class="sample-name">Sales Performance Data</span>
+                                    <span class="sample-desc">CSV • 100 rows • Revenue & Profit</span>
+                                </div>
+                            </div>
+                            <div class="menu-sample-item" onclick="loadSampleDataset('student_scores.xlsx')">
+                                <i class="fa-solid fa-graduation-cap text-secondary"></i> 
+                                <div>
+                                    <span class="sample-name">Student Scores & Attendance</span>
+                                    <span class="sample-desc">Excel • 100 rows • Grades & GPA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button type="button" class="btn-quick-theme-toggle" onclick="toggleQuickDarkLight()" title="Toggle Dark/Light Theme">
+                        <i class="fa-solid fa-moon" id="navbar-theme-icon"></i>
+                    </button>
+
+                    <!-- Notification Bell -->
+                    <button type="button" class="btn-notification" onclick="showNotificationCenter()" title="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="notification-badge-dot"></span>
+                    </button>
+
+                    <!-- User Profile Pill (SR, Shashvat Rai) -->
+                    <div class="user-profile-badge-v2" onclick="toggleUserDropdown(event)">
+                        <div class="avatar-initials">SR</div>
+                        <span id="user-display-name" class="username">Shashvat Rai</span>
+                        <i class="fa-solid fa-chevron-down chevron"></i>
+
+                        <div class="user-dropdown-menu hidden" id="user-dropdown-menu">
+                            <div class="dropdown-header">
+                                <strong id="menu-user-name">Shashvat Rai</strong>
+                                <span id="menu-user-email">shashvat@example.com</span>
+                            </div>
+                            <div class="dropdown-item" onclick="openAiKeyModal()">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Settings
+                            </div>
+                            <div class="dropdown-item" onclick="toggleThemeDropdown(event)">
+                                <i class="fa-solid fa-palette"></i> Switch Theme
+                            </div>
+                            <div class="dropdown-item logout" onclick="handleLogout()">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Workspace Content -->
+            <main class="workspace-content">
+                <!-- ====== HOME DASHBOARD PANEL (MATCHING SCREENSHOT) ====== -->
+                <section id="panel-home" class="tab-panel active">
+                    <!-- Welcome Header & Live Clock -->
+                    <div class="home-welcome-header">
+                        <div class="welcome-text-block">
+                            <h1 class="welcome-title">Welcome back, <span id="welcome-user-firstname">Shashvat</span> 👋</h1>
+                            <p class="welcome-subtitle">Turn your data into powerful insights with AI.</p>
+                        </div>
+                        <div class="live-datetime-widget">
+                            <i class="fa-regular fa-calendar-days calendar-icon"></i>
+                            <div class="datetime-text">
+                                <span id="live-date-str">Wed, Sep 24, 2025</span>
+                                <span id="live-time-str">03:12 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Metric KPI Cards (Top Row) -->
+                    <div class="home-kpi-grid">
+                        <!-- Card 1: Total Datasets -->
+                        <div class="kpi-card-v2" onclick="switchTab('datasets')">
+                            <div class="kpi-icon-box kpi-blue">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div class="kpi-content-box">
+                                <span class="kpi-label-v2">Total Datasets</span>
+                                <div class="kpi-number-v2" id="home-kpi-datasets">5</div>
+                                <div class="kpi-trend-pill positive">
+                                    <i class="fa-solid fa-arrow-up"></i> 2 this week
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Total Rows Processed -->
+                        <div class="kpi-card-v2" onclick="switchTab('cleaner')">
+                            <div class="kpi-icon-box kpi-cyan">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div class="kpi-content-box">
+                                <span class="kpi-label-v2">Total Rows Processed</span>
+                                <div class="kpi-number-v2" id="home-kpi-rows">12,480</div>
+                                <div class="kpi-trend-pill positive">
+                                    <i class="fa-solid fa-arrow-up"></i> 48% this week
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Analyses Performed -->
+                        <div class="kpi-card-v2" onclick="switchTab('analytics')">
+                            <div class="kpi-icon-box kpi-purple">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div class="kpi-content-box">
+                                <span class="kpi-label-v2">Analyses Performed</span>
+                                <div class="kpi-number-v2" id="home-kpi-analyses">8</div>
+                                <div class="kpi-trend-pill positive">
+                                    <i class="fa-solid fa-arrow-up"></i> 3 this week
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: AI Predictions -->
+                        <div class="kpi-card-v2" onclick="switchTab('predict')">
+                            <div class="kpi-icon-box kpi-pink">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div class="kpi-content-box">
+                                <span class="kpi-label-v2">AI Predictions</span>
+                                <div class="kpi-number-v2" id="home-kpi-predictions">3</div>
+                                <div class="kpi-trend-pill positive">
+                                    <i class="fa-solid fa-arrow-up"></i> 50% this week
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Row: Data Overview, Dataset Distribution, Quick Actions -->
+                    <div class="home-middle-grid">
+                        <!-- Card A: Data Overview Line Chart -->
+                        <div class="home-card chart-overview-card">
+                            <div class="home-card-header">
+                                <div>
+                                    <h3 class="card-title-v2">Data Overview</h3>
+                                    <p class="card-subtitle-v2">Quick insights from your datasets</p>
+                                </div>
+                                <div class="chart-custom-legend">
+                                    <span class="legend-badge"><span class="legend-dot dot-blue"></span> Sales</span>
+                                    <span class="legend-badge"><span class="legend-dot dot-purple"></span> Users</span>
+                                    <span class="legend-badge"><span class="legend-dot dot-emerald"></span> Profit</span>
+                                </div>
+                            </div>
+                            <div class="chart-canvas-container" style="position: relative; height: 260px; width: 100%;">
+                                <canvas id="homeDataOverviewChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Card B: Dataset Distribution Donut Chart -->
+                        <div class="home-card dataset-dist-card">
+                            <div class="home-card-header">
+                                <h3 class="card-title-v2">Dataset Distribution</h3>
+                            </div>
+                            <div class="donut-wrapper">
+                                <div class="donut-canvas-box">
+                                    <canvas id="homeDatasetDistributionChart"></canvas>
+                                    <div class="donut-center-overlay">
+                                        <span class="donut-count" id="donut-center-count">5</span>
+                                        <span class="donut-unit">Datasets</span>
+                                    </div>
+                                </div>
+                                <div class="donut-legend-list">
+                                    <div class="dist-legend-item"><span class="dist-dot dot-sales"></span> <span class="dist-name">Sales</span> <span class="dist-val">1</span></div>
+                                    <div class="dist-legend-item"><span class="dist-dot dot-finance"></span> <span class="dist-name">Finance</span> <span class="dist-val">1</span></div>
+                                    <div class="dist-legend-item"><span class="dist-dot dot-marketing"></span> <span class="dist-name">Marketing</span> <span class="dist-val">1</span></div>
+                                    <div class="dist-legend-item"><span class="dist-dot dot-hr"></span> <span class="dist-name">HR</span> <span class="dist-val">1</span></div>
+                                    <div class="dist-legend-item"><span class="dist-dot dot-others"></span> <span class="dist-name">Others</span> <span class="dist-val">1</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card C: Quick Actions (Vertical 6 Action Cards) -->
+                        <div class="home-card quick-actions-card">
+                            <div class="home-card-header">
+                                <h3 class="card-title-v2"><i class="fa-solid fa-bolt text-warning"></i> Quick Actions</h3>
+                            </div>
+                            <div class="quick-actions-list">
+                                <div class="action-btn-card qa-upload" onclick="switchTab('datasets')">
+                                    <div class="action-btn-icon"><i class="fa-solid fa-upload"></i></div>
+                                    <div class="action-btn-info">
+                                        <span class="action-btn-title">Upload Dataset</span>
+                                        <span class="action-btn-desc">Add new data files</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right action-chevron"></i>
+                                </div>
+
+                                <div class="action-btn-card qa-clean" onclick="switchTab('cleaner')">
+                                    <div class="action-btn-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                    <div class="action-btn-info">
+                                        <span class="action-btn-title">Clean Data</span>
+                                        <span class="action-btn-desc">Handle missing values & duplicates</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right action-chevron"></i>
+                                </div>
+
+                                <div class="action-btn-card qa-analytics" onclick="switchTab('analytics')">
+                                    <div class="action-btn-icon"><i class="fa-solid fa-chart-line"></i></div>
+                                    <div class="action-btn-info">
+                                        <span class="action-btn-title">Run Analytics</span>
+                                        <span class="action-btn-desc">Get instant insights</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right action-chevron"></i>
+                                </div>
+
+                                <div class="action-btn-card qa-graph" onclick="switchTab('visualizer')">
+                                    <div class="action-btn-icon"><i class="fa-solid fa-chart-pie"></i></div>
+                                    <div class="action-btn-info">
+                                        <span class="action-btn-title">Build Graph</span>
+                                        <span class="action-btn-desc">Create visualizations</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right action-chevron"></i>
+                                </div>
+
+                                <div class="action-btn-card qa-report" onclick="switchTab('dashboard')">
+                                    <div class="action-btn-icon"><i class="fa-solid fa-file-lines"></i></div>
+                                    <div class="action-btn-info">
+                                        <span class="action-btn-title">Generate Report</span>
+                                        <span class="action-btn-desc">Download dashboard</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right action-chevron"></i>
+                                </div>
+
+                                <div class="action-btn-card qa-predict" onclick="switchTab('predict')">
+                                    <div class="action-btn-icon"><i class="fa-solid fa-brain"></i></div>
+                                    <div class="action-btn-info">
+                                        <span class="action-btn-title">Predict with AI</span>
+                                        <span class="action-btn-desc">Need forecasts or predictions?</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right action-chevron"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row: Your Datasets Table + Recent Activity -->
+                    <div class="home-bottom-grid">
+                        <!-- Left: Your Datasets Table Card -->
+                        <div class="home-card datasets-table-card">
+                            <div class="home-card-header">
+                                <div>
+                                    <h3 class="card-title-v2">Your Datasets</h3>
+                                    <p class="card-subtitle-v2">Manage and explore your uploaded datasets</p>
+                                </div>
+                                <button type="button" class="btn-view-all" onclick="switchTab('datasets')">
+                                    View All Datasets <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="table-responsive-box">
+                                <table class="home-datasets-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Rows</th>
+                                            <th>Columns</th>
+                                            <th>Size</th>
+                                            <th>Uploaded</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="home-datasets-tbody">
+                                        <tr>
+                                            <td>
+                                                <div class="dataset-meta-cell">
+                                                    <div class="ds-icon-sq bg-teal"><i class="fa-solid fa-file-csv"></i></div>
+                                                    <div>
+                                                        <div class="ds-name-text">sales_data</div>
+                                                        <div class="ds-sub-text">Sales & Revenue Data</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>200</td>
+                                            <td>7</td>
+                                            <td>45 KB</td>
+                                            <td>Sep 20, 2025</td>
+                                            <td>
+                                                <div class="tbl-action-btns">
+                                                    <button class="tbl-act-btn" onclick="loadSampleDataset('sales_data.csv')" title="Preview Dataset"><i class="fa-regular fa-eye"></i></button>
+                                                    <a class="tbl-act-btn" href="/api/datasets/download?filename=sales_data.csv" download title="Download"><i class="fa-solid fa-download"></i></a>
+                                                    <button class="tbl-act-btn" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="dataset-meta-cell">
+                                                    <div class="ds-icon-sq bg-blue"><i class="fa-solid fa-file-excel"></i></div>
+                                                    <div>
+                                                        <div class="ds-name-text">employee_data</div>
+                                                        <div class="ds-sub-text">HR & Performance Data</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>150</td>
+                                            <td>6</td>
+                                            <td>32 KB</td>
+                                            <td>Sep 18, 2025</td>
+                                            <td>
+                                                <div class="tbl-action-btns">
+                                                    <button class="tbl-act-btn" onclick="loadSampleDataset('student_scores.xlsx')" title="Preview Dataset"><i class="fa-regular fa-eye"></i></button>
+                                                    <a class="tbl-act-btn" href="/api/datasets/download?filename=student_scores.xlsx" download title="Download"><i class="fa-solid fa-download"></i></a>
+                                                    <button class="tbl-act-btn" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="dataset-meta-cell">
+                                                    <div class="ds-icon-sq bg-purple"><i class="fa-solid fa-file-csv"></i></div>
+                                                    <div>
+                                                        <div class="ds-name-text">marketing_data</div>
+                                                        <div class="ds-sub-text">Campaign Analytics</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>300</td>
+                                            <td>8</td>
+                                            <td>68 KB</td>
+                                            <td>Sep 16, 2025</td>
+                                            <td>
+                                                <div class="tbl-action-btns">
+                                                    <button class="tbl-act-btn" onclick="loadSampleDataset('car sales.csv')" title="Preview Dataset"><i class="fa-regular fa-eye"></i></button>
+                                                    <a class="tbl-act-btn" href="/api/datasets/download?filename=car sales.csv" download title="Download"><i class="fa-solid fa-download"></i></a>
+                                                    <button class="tbl-act-btn" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="dataset-meta-cell">
+                                                    <div class="ds-icon-sq bg-pink"><i class="fa-solid fa-file-csv"></i></div>
+                                                    <div>
+                                                        <div class="ds-name-text">finance_data</div>
+                                                        <div class="ds-sub-text">Financial Records</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>250</td>
+                                            <td>5</td>
+                                            <td>54 KB</td>
+                                            <td>Sep 14, 2025</td>
+                                            <td>
+                                                <div class="tbl-action-btns">
+                                                    <button class="tbl-act-btn" onclick="switchTab('datasets')" title="Preview Dataset"><i class="fa-regular fa-eye"></i></button>
+                                                    <button class="tbl-act-btn" title="Download"><i class="fa-solid fa-download"></i></button>
+                                                    <button class="tbl-act-btn" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="dataset-meta-cell">
+                                                    <div class="ds-icon-sq bg-green"><i class="fa-solid fa-file-csv"></i></div>
+                                                    <div>
+                                                        <div class="ds-name-text">customer_data</div>
+                                                        <div class="ds-sub-text">Customer Segmentation</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>400</td>
+                                            <td>9</td>
+                                            <td>102 KB</td>
+                                            <td>Sep 12, 2025</td>
+                                            <td>
+                                                <div class="tbl-action-btns">
+                                                    <button class="tbl-act-btn" onclick="switchTab('datasets')" title="Preview Dataset"><i class="fa-regular fa-eye"></i></button>
+                                                    <button class="tbl-act-btn" title="Download"><i class="fa-solid fa-download"></i></button>
+                                                    <button class="tbl-act-btn" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right: Recent Activity Card -->
+                        <div class="home-card activity-feed-card">
+                            <div class="home-card-header">
+                                <h3 class="card-title-v2"><i class="fa-regular fa-clock"></i> Recent Activity</h3>
+                            </div>
+                            <div class="activity-timeline-list">
+                                <div class="activity-item">
+                                    <div class="act-icon-circle act-cyan"><i class="fa-solid fa-upload"></i></div>
+                                    <div class="act-content">
+                                        <div class="act-title">Dataset uploaded</div>
+                                        <div class="act-desc">sales_data.csv</div>
+                                    </div>
+                                    <div class="act-time">2 hours ago</div>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="act-icon-circle act-emerald"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                    <div class="act-content">
+                                        <div class="act-title">Data cleaned</div>
+                                        <div class="act-desc">marketing_data.csv</div>
+                                    </div>
+                                    <div class="act-time">4 hours ago</div>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="act-icon-circle act-blue"><i class="fa-solid fa-chart-line"></i></div>
+                                    <div class="act-content">
+                                        <div class="act-title">Analysis completed</div>
+                                        <div class="act-desc">Sales trends analysis</div>
+                                    </div>
+                                    <div class="act-time">6 hours ago</div>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="act-icon-circle act-purple"><i class="fa-solid fa-chart-pie"></i></div>
+                                    <div class="act-content">
+                                        <div class="act-title">Graph created</div>
+                                        <div class="act-desc">Revenue vs Profit</div>
+                                    </div>
+                                    <div class="act-time">8 hours ago</div>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="act-icon-circle act-pink"><i class="fa-solid fa-brain"></i></div>
+                                    <div class="act-content">
+                                        <div class="act-title">AI prediction</div>
+                                        <div class="act-desc">Customer churn prediction</div>
+                                    </div>
+                                    <div class="act-time">10 hours ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom AI Assistant Banner -->
+                    <div class="home-ai-assistant-banner">
+                        <div class="ai-banner-left">
+                            <div class="ai-banner-icon-box">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div class="ai-banner-text">
+                                <h4>Let AI find insights for you</h4>
+                                <p>Ask questions in natural language or use our AI assistant to get instant analysis.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-try-ai-assistant" onclick="openAiKeyModal()">
+                            Try AI Assistant <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Bottom Brand Credit -->
+                    <div class="home-footer-credit">
+                        <span>AI Visualizer • AI-Powered Data Visualization & Analytics</span>
+                    </div>
+                </section>
+
+                <section id="panel-datasets" class="tab-panel">
                 <div class="panel-header">
                     <div>
                         <h1>Datasets Warehouse</h1>
@@ -829,7 +1266,7 @@
                 <!-- Presets Bar -->
                 <div class="glass-card chart-presets-bar margin-bottom">
                     <div class="preset-bar-content">
-                        <span class="preset-label"><i class="fa-solid fa-bolt-lightning text-accent"></i> 1-Click Data Analyzer Presets:</span>
+                        <span class="preset-label"><i class="fa-solid fa-bolt-lightning text-accent"></i> 1-Click AI Visualizer Presets:</span>
                         <div class="preset-buttons-group scrollable-x">
                             <button type="button" class="btn btn-secondary btn-sm" onclick="applyChartPreset('bar')"><i class="fa-solid fa-chart-column"></i> Column</button>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="applyChartPreset('horizontalBar')"><i class="fa-solid fa-chart-bar fa-rotate-90"></i> Bar</button>
@@ -1531,6 +1968,8 @@
                 </div>
             </section>
 
+        </main>
+        </div><!-- /.app-main-layout -->
         <!-- Modern Website Footer -->
         <footer class="app-website-footer">
             <div class="footer-container">
@@ -1572,7 +2011,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 Data Analyzer Platform. Built for High-Performance BI Visualization & Analytics.</p>
+                <p>&copy; 2026 AI Visualizer Platform. Built for High-Performance BI Visualization & Analytics.</p>
             </div>
         </footer>
     </div>

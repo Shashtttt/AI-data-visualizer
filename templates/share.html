@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AetherBI — Shared Analysis</title>
-  <meta name="description" content="Shared data analysis from AetherBI — interactive charts and insights.">
+  <title>AI Visualizer — Shared Analysis</title>
+  <meta name="description" content="Shared data analysis from AI Visualizer — interactive charts and insights.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -163,7 +163,7 @@
 </head>
 <body>
   <header class="share-header">
-    <div class="logo">⚡ AetherBI</div>
+    <div class="logo">⚡ AI Visualizer</div>
     <span class="share-badge">📤 Shared Analysis</span>
     <a href="/" class="cta-btn">🚀 Create Your Own</a>
   </header>
@@ -179,7 +179,7 @@
       <h2>Share Link Expired or Not Found</h2>
       <p>This share link may have expired or been revoked by the owner.</p>
       <br>
-      <a href="/" class="cta-btn">← Back to AetherBI</a>
+      <a href="/" class="cta-btn">← Back to AI Visualizer</a>
     </div>
   </div>
 
@@ -193,7 +193,7 @@
 
     async function loadShare() {
       try {
-        const resp = await fetch(/api/share/data/);
+        const resp = await fetch(`/api/share/data/${SHARE_TOKEN}`);
         const data = await resp.json();
         if (!data.success) { showError(); return; }
         renderShare(data);
@@ -215,22 +215,22 @@
       const charts = payload.charts || payload.savedCharts || [];
       const createdDate = data.created_at ? new Date(data.created_at).toLocaleDateString() : 'Unknown';
 
-      content.innerHTML = 
+      content.innerHTML = `
         <div class="share-meta">
           <div>
-            <h1></h1>
-            <p>Shared on  &bull;  visualization</p>
+            <h1>${payload.name || 'Shared Analysis'}</h1>
+            <p>Shared on ${createdDate} &bull; ${charts.length} visualization${charts.length !== 1 ? 's' : ''}</p>
           </div>
           <div class="meta-stats">
-            <div class="meta-stat"><div class="val"></div><div class="lbl">Charts</div></div>
-            <div class="meta-stat"><div class="val"></div><div class="lbl">Views</div></div>
+            <div class="meta-stat"><div class="val">${charts.length}</div><div class="lbl">Charts</div></div>
+            <div class="meta-stat"><div class="val">${data.views || 1}</div><div class="lbl">Views</div></div>
           </div>
         </div>
         <div class="charts-grid" id="chartsGrid"></div>
         <div class="read-only-note">
-          🔒 This is a read-only shared view. <a href="/" style="color:#818cf8">Create your own analysis on AetherBI →</a>
+          🔒 This is a read-only shared view. <a href="/" style="color:#818cf8">Create your own analysis on AI Visualizer →</a>
         </div>
-      ;
+      `;
 
       const grid = document.getElementById('chartsGrid');
       if (charts.length === 0) {

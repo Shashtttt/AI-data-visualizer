@@ -229,17 +229,19 @@ document.addEventListener('click', (e) => {
 // NAVIGATION & SPA ROUTING
 // ==========================================
 function switchTab(tabId) {
-    const targetItem = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+    const targetItem = document.querySelector(`.sidebar-nav-item[data-tab="${tabId}"]`) || document.querySelector(`.nav-item[data-tab="${tabId}"]`);
     if (targetItem && targetItem.classList.contains("disabled")) {
         showToast("Access Denied", "Please upload or select a dataset first to enable this feature.", "warning");
         return;
     }
 
-    // Toggle active state on navbar items
-    document.querySelectorAll(".nav-links .nav-item").forEach(item => {
+    // Toggle active state on navbar & sidebar items
+    document.querySelectorAll(".sidebar-nav-item, .nav-links .nav-item").forEach(item => {
         item.classList.remove("active");
     });
-    if (targetItem) targetItem.classList.add("active");
+    document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(item => {
+        item.classList.add("active");
+    });
 
     // Toggle panel visibility
     document.querySelectorAll(".tab-panel").forEach(panel => {
@@ -257,7 +259,11 @@ function switchTab(tabId) {
     if (workspace) workspace.scrollTop = 0;
 
     // Custom actions when switching tab
-    if (tabId === "dashboard") {
+    if (tabId === "home") {
+        if (typeof initHomeDashboard === 'function') {
+            initHomeDashboard();
+        }
+    } else if (tabId === "dashboard") {
         renderDashboardReport();
     } else if (tabId === "visualizer") {
         updateChartPreview();
@@ -449,11 +455,29 @@ function loginSuccess(user) {
     currentUser = user;
     document.getElementById("auth-view").classList.add("hidden");
     document.getElementById("app-view").classList.remove("hidden");
-    document.getElementById("user-display-name").innerText = user.username;
+    
+    const displayName = (user && user.username) ? user.username : 'Shashvat Rai';
+    const userDisplayEl = document.getElementById("user-display-name");
+    if (userDisplayEl) userDisplayEl.innerText = displayName;
+    
+    const menuUserName = document.getElementById("menu-user-name");
+    if (menuUserName) menuUserName.innerText = displayName;
+    const menuUserEmail = document.getElementById("menu-user-email");
+    if (menuUserEmail && user && user.email) menuUserEmail.innerText = user.email;
+
+    const welcomeFirstEl = document.getElementById("welcome-user-firstname");
+    if (welcomeFirstEl) {
+        welcomeFirstEl.innerText = displayName.split(' ')[0] || 'Shashvat';
+    }
     
     // Clear forms
-    document.getElementById("login-form").reset();
-    document.getElementById("register-form").reset();
+    const lForm = document.getElementById("login-form");
+    if (lForm) lForm.reset();
+    const rForm = document.getElementById("register-form");
+    if (rForm) rForm.reset();
+    
+    // Switch to Home Dashboard
+    switchTab('home');
     
     // Refresh datasets list
     refreshDatasetList();
@@ -4446,3 +4470,250 @@ window.addShareButtonToCard = addShareButtonToCard;
 
 console.log('[AetherBI] New features loaded: Smart Axes ⭐, Update Alerts 🔔, Sharing 🤝, Forecast 🔮');
 
+
+// ==========================================
+// AI VISUALIZER - HOME DASHBOARD & SIDEBAR LOGIC
+// ==========================================
+let homeOverviewChartInstance = null;
+let homeDonutChartInstance = null;
+let liveClockInterval = null;
+
+function initHomeDashboard() {
+    // 1. Live Digital Clock Widget
+    updateHomeClock();
+    if (!liveClockInterval) {
+        liveClockInterval = setInterval(updateHomeClock, 1000);
+    }
+
+    // 2. Data Overview Smooth Spline Line Chart (Sales, Users, Profit)
+    renderHomeOverviewChart();
+
+    // 3. Dataset Distribution Donut Chart
+    renderHomeDonutChart();
+
+    // 4. Update Datasets KPI count and load table
+    refreshHomeDatasetsSummary();
+}
+
+function updateHomeClock() {
+    const now = new Date();
+    const dateEl = document.getElementById("live-date-str");
+    const timeEl = document.getElementById("live-time-str");
+    if (dateEl) {
+        const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+        dateEl.textContent = now.toLocaleDateString('en-US', options);
+    }
+    if (timeEl) {
+        timeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    }
+}
+
+function renderHomeOverviewChart() {
+    const canvas = document.getElementById("homeDataOverviewChart");
+    if (!canvas) return;
+
+    if (homeOverviewChartInstance) {
+        homeOverviewChartInstance.destroy();
+        homeOverviewChartInstance = null;
+    }
+
+    const ctx = canvas.getContext('2d');
+    
+    // Create soft gradients
+    const gradBlue = ctx.createLinearGradient(0, 0, 0, 240);
+    gradBlue.addColorStop(0, 'rgba(59, 130, 246, 0.35)');
+    gradBlue.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+    const gradPurple = ctx.createLinearGradient(0, 0, 0, 240);
+    gradPurple.addColorStop(0, 'rgba(139, 92, 246, 0.28)');
+    gradPurple.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+
+    const gradEmerald = ctx.createLinearGradient(0, 0, 0, 240);
+    gradEmerald.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+    gradEmerald.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    homeOverviewChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Sales',
+                    data: [8200, 9100, 11400, 10200, 12800, 14200, 13100, 15600, 16400, 15800, 17200, 18500],
+                    borderColor: '#3b82f6',
+                    backgroundColor: gradBlue,
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.42,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#3b82f6'
+                },
+                {
+                    label: 'Users',
+                    data: [5200, 5800, 7100, 6900, 8400, 9300, 8900, 11200, 12100, 11800, 13400, 14200],
+                    borderColor: '#8b5cf6',
+                    backgroundColor: gradPurple,
+                    borderWidth: 2.2,
+                    fill: true,
+                    tension: 0.42,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#8b5cf6'
+                },
+                {
+                    label: 'Profit',
+                    data: [3100, 3400, 4200, 4100, 5200, 5800, 5400, 6900, 7400, 7100, 8200, 8900],
+                    borderColor: '#10b981',
+                    backgroundColor: gradEmerald,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.42,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#10b981'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 20, 35, 0.95)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    boxPadding: 4,
+                    usePointStyle: true
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: { color: '#64748b', font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                    ticks: {
+                        color: '#64748b',
+                        font: { size: 11 },
+                        callback: val => val >= 1000 ? (val / 1000) + 'K' : val
+                    },
+                    min: 0,
+                    max: 20000
+                }
+            }
+        }
+    });
+}
+
+function renderHomeDonutChart() {
+    const canvas = document.getElementById("homeDatasetDistributionChart");
+    if (!canvas) return;
+
+    if (homeDonutChartInstance) {
+        homeDonutChartInstance.destroy();
+        homeDonutChartInstance = null;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    homeDonutChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Sales', 'Finance', 'Marketing', 'HR', 'Others'],
+            datasets: [{
+                data: [1, 1, 1, 1, 1],
+                backgroundColor: [
+                    '#3b82f6',
+                    '#06b6d4',
+                    '#8b5cf6',
+                    '#10b981',
+                    '#f59e0b'
+                ],
+                borderWidth: 3,
+                borderColor: '#0f1422',
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 20, 35, 0.95)',
+                    padding: 8
+                }
+            }
+        }
+    });
+}
+
+async function refreshHomeDatasetsSummary() {
+    try {
+        const response = await fetch("/api/datasets/list");
+        const data = await response.json();
+        if (data.success && data.datasets) {
+            const count = data.datasets.length || 5;
+            const dsKpi = document.getElementById("home-kpi-datasets");
+            if (dsKpi) dsKpi.textContent = count;
+            const donutCount = document.getElementById("donut-center-count");
+            if (donutCount) donutCount.textContent = count;
+        }
+    } catch(e) {
+        // Fallback to defaults
+    }
+}
+
+function toggleSidebar(forceState) {
+    const sidebar = document.getElementById("app-sidebar");
+    const backdrop = document.querySelector(".sidebar-backdrop");
+    if (!sidebar) return;
+    const shouldOpen = typeof forceState === 'boolean' ? forceState : !sidebar.classList.contains("open");
+    if (shouldOpen) {
+        sidebar.classList.add("open");
+        if (backdrop) backdrop.classList.add("active");
+    } else {
+        sidebar.classList.remove("open");
+        if (backdrop) backdrop.classList.remove("active");
+    }
+}
+
+function toggleUserDropdown(e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById("user-dropdown-menu");
+    if (menu) menu.classList.toggle("hidden");
+}
+
+function showNotificationCenter() {
+    showToast("Notifications", "All services running smoothly with high performance.", "info");
+}
+
+// Close user dropdown if clicking outside
+document.addEventListener("click", (e) => {
+    const userMenu = document.getElementById("user-dropdown-menu");
+    if (userMenu && !userMenu.classList.contains("hidden")) {
+        const badge = document.querySelector(".user-profile-badge-v2");
+        if (badge && !badge.contains(e.target)) {
+            userMenu.classList.add("hidden");
+        }
+    }
+});
+
+// Auto-initialize home dashboard if on home tab on DOM load
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        const homePanel = document.getElementById("panel-home");
+        if (homePanel && homePanel.classList.contains("active")) {
+            initHomeDashboard();
+        }
+    }, 300);
+});

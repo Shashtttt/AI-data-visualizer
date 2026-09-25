@@ -14,6 +14,9 @@ import numpy as np
 from dotenv import load_dotenv
 load_dotenv()
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import db
 import cleaner
 import firebase_storage_helper as fb
