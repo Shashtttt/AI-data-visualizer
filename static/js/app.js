@@ -494,15 +494,24 @@ function logoutSuccess() {
     document.getElementById("app-view").classList.add("hidden");
     
     // Disable navigation panel triggers
-    document.getElementById("nav-cleaner").classList.add("disabled");
-    document.getElementById("nav-visualizer").classList.add("disabled");
-    document.getElementById("sidebar-active-dataset").classList.add("hidden");
+    const navCleaner = document.getElementById("nav-cleaner");
+    if (navCleaner) navCleaner.classList.add("disabled");
+    const navVisualizer = document.getElementById("nav-visualizer");
+    if (navVisualizer) navVisualizer.classList.add("disabled");
+    const navAnalytics = document.getElementById("nav-analytics");
+    if (navAnalytics) navAnalytics.classList.add("disabled");
+    const sbActive = document.getElementById("sidebar-active-dataset");
+    if (sbActive) sbActive.classList.add("hidden");
     
     // Clear UI state
-    document.getElementById("preview-table").innerHTML = "";
-    document.getElementById("datasets-list-container").innerHTML = "";
-    document.getElementById("sidebar-dataset-name").innerText = "No file";
-    document.getElementById("sidebar-dataset-rows").innerText = "0 rows";
+    const prevTable = document.getElementById("preview-table");
+    if (prevTable) prevTable.innerHTML = "";
+    const dsContainer = document.getElementById("datasets-list-container");
+    if (dsContainer) dsContainer.innerHTML = "";
+    const sbName = document.getElementById("sidebar-dataset-name");
+    if (sbName) sbName.innerText = "No file";
+    const sbRows = document.getElementById("sidebar-dataset-rows");
+    if (sbRows) sbRows.innerText = "0 rows";
 }
 
 // ==========================================
@@ -693,6 +702,7 @@ async function selectDataset(filename) {
             
             updateAppStateDataset();
             refreshDatasetList();
+            refreshHomeDatasetsSummary();
             
             showToast("Dataset Loaded", `Active dataset set to: ${filename}`, "success");
             
@@ -713,21 +723,31 @@ function updateAppStateDataset() {
     if (!activeDataset || !datasetMetadata) return;
     
     // Enable tabs
-    document.getElementById("nav-cleaner").classList.remove("disabled");
-    if (document.getElementById("nav-analytics")) document.getElementById("nav-analytics").classList.remove("disabled");
-    document.getElementById("nav-visualizer").classList.remove("disabled");
+    const navCleaner = document.getElementById("nav-cleaner");
+    if (navCleaner) navCleaner.classList.remove("disabled");
+    const navAnalytics = document.getElementById("nav-analytics");
+    if (navAnalytics) navAnalytics.classList.remove("disabled");
+    const navVisualizer = document.getElementById("nav-visualizer");
+    if (navVisualizer) navVisualizer.classList.remove("disabled");
+    const navPredict = document.getElementById("nav-predict");
+    if (navPredict) navPredict.classList.remove("disabled");
     
     // Active dataset card on sidebar & navbar dropdown
-    document.getElementById("sidebar-active-dataset").classList.remove("hidden");
-    document.getElementById("sidebar-dataset-name").innerText = activeDataset;
-    document.getElementById("sidebar-dataset-rows").innerText = `${datasetMetadata.shape[0]} rows`;
+    const sbActive = document.getElementById("sidebar-active-dataset");
+    if (sbActive) sbActive.classList.remove("hidden");
+    const sbName = document.getElementById("sidebar-dataset-name");
+    if (sbName) sbName.innerText = activeDataset;
+    const sbRows = document.getElementById("sidebar-dataset-rows");
+    if (sbRows && datasetMetadata.shape) sbRows.innerText = `${datasetMetadata.shape[0].toLocaleString()} rows`;
     
     const navDatasetName = document.getElementById("nav-active-dataset-name");
     if (navDatasetName) navDatasetName.textContent = activeDataset;
     
     // Cleaner headers
-    document.getElementById("cleaner-dataset-title").innerText = activeDataset;
-    document.getElementById("cleaner-dataset-subtitle").innerText = `Inspect schema types, handle null values, remove duplicates, or create calculated measures. (${datasetMetadata.shape[0]} rows, ${datasetMetadata.shape[1]} cols)`;
+    const clTitle = document.getElementById("cleaner-dataset-title");
+    if (clTitle) clTitle.innerText = activeDataset;
+    const clSub = document.getElementById("cleaner-dataset-subtitle");
+    if (clSub && datasetMetadata.shape) clSub.innerText = `Inspect schema types, handle null values, remove duplicates, or create calculated measures. (${datasetMetadata.shape[0]} rows, ${datasetMetadata.shape[1]} cols)`;
     
     // Populate column configuration lists in Cleaner
     populateCleanerDropdowns();
@@ -738,6 +758,11 @@ function updateAppStateDataset() {
     // Update Executive Dashboard KPI Summary
     if (typeof updateDashboardKpiStrip === 'function') {
         updateDashboardKpiStrip();
+    }
+
+    // Dynamic Home Dashboard update with active dataset
+    if (typeof updateHomeWithActiveDataset === 'function') {
+        updateHomeWithActiveDataset();
     }
 }
 
@@ -4414,6 +4439,7 @@ window.uploadFile = async function(file) {
             datasetMetadata = data.metadata;
             updateAppStateDataset();
             refreshDatasetList();
+            if (typeof refreshHomeDatasetsSummary === 'function') refreshHomeDatasetsSummary();
             switchTab('cleaner');
         } else {
             showToast('Upload Failed', data.error || 'An error occurred.', 'error');
@@ -4532,50 +4558,108 @@ function renderHomeOverviewChart() {
     gradEmerald.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
     gradEmerald.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
 
-    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let datasets = [
+        {
+            label: 'Sales',
+            data: [8200, 9100, 11400, 10200, 12800, 14200, 13100, 15600, 16400, 15800, 17200, 18500],
+            borderColor: '#3b82f6',
+            backgroundColor: gradBlue,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.42,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#3b82f6'
+        },
+        {
+            label: 'Users',
+            data: [5200, 5800, 7100, 6900, 8400, 9300, 8900, 11200, 12100, 11800, 13400, 14200],
+            borderColor: '#8b5cf6',
+            backgroundColor: gradPurple,
+            borderWidth: 2.2,
+            fill: true,
+            tension: 0.42,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#8b5cf6'
+        },
+        {
+            label: 'Profit',
+            data: [3100, 3400, 4200, 4100, 5200, 5800, 5400, 6900, 7400, 7100, 8200, 8900],
+            borderColor: '#10b981',
+            backgroundColor: gradEmerald,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.42,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#10b981'
+        }
+    ];
+
+    // If active dataset exists and has sample rows, make the overview chart dynamic with actual data!
+    if (datasetMetadata && datasetMetadata.sample_data && datasetMetadata.sample_data.length > 0) {
+        const rows = datasetMetadata.sample_data.slice(0, 12);
+        const cols = datasetMetadata.columns || [];
+        const numCols = cols.filter(c => {
+            const dt = (datasetMetadata.dtypes && datasetMetadata.dtypes[c] || '').toLowerCase();
+            return dt.includes('int') || dt.includes('float') || dt.includes('double') || dt.includes('num') || dt.includes('price') || dt.includes('sales') || dt.includes('unit') || dt.includes('score') || dt.includes('revenue');
+        });
+
+        // Determine X-axis label column
+        const labelCol = cols.find(c => {
+            const lc = c.toLowerCase();
+            return lc.includes('date') || lc.includes('month') || lc.includes('name') || lc.includes('model') || lc.includes('product') || lc.includes('region') || lc.includes('category');
+        }) || cols[0];
+
+        if (labelCol) {
+            labels = rows.map((r, i) => r[labelCol] !== undefined && r[labelCol] !== null ? String(r[labelCol]).slice(0, 12) : `Row ${i+1}`);
+        } else {
+            labels = rows.map((_, i) => `Item ${i+1}`);
+        }
+
+        if (numCols.length > 0) {
+            datasets = [];
+            const palette = [
+                { color: '#3b82f6', grad: gradBlue },
+                { color: '#8b5cf6', grad: gradPurple },
+                { color: '#10b981', grad: gradEmerald }
+            ];
+
+            const topNumCols = numCols.slice(0, 3);
+            topNumCols.forEach((col, idx) => {
+                const p = palette[idx % palette.length];
+                datasets.push({
+                    label: col,
+                    data: rows.map(r => typeof r[col] === 'number' ? r[col] : (parseFloat(r[col]) || 0)),
+                    borderColor: p.color,
+                    backgroundColor: p.grad,
+                    borderWidth: 2.4,
+                    fill: true,
+                    tension: 0.42,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: p.color
+                });
+            });
+
+            // Update custom legend badges in HTML
+            const legendContainer = document.querySelector('.chart-custom-legend');
+            if (legendContainer) {
+                const dots = ['dot-blue', 'dot-purple', 'dot-emerald'];
+                legendContainer.innerHTML = topNumCols.map((col, idx) => {
+                    return `<span class="legend-badge"><span class="legend-dot ${dots[idx % 3]}"></span> ${col}</span>`;
+                }).join('');
+            }
+        }
+    }
 
     homeOverviewChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [
-                {
-                    label: 'Sales',
-                    data: [8200, 9100, 11400, 10200, 12800, 14200, 13100, 15600, 16400, 15800, 17200, 18500],
-                    borderColor: '#3b82f6',
-                    backgroundColor: gradBlue,
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.42,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#3b82f6'
-                },
-                {
-                    label: 'Users',
-                    data: [5200, 5800, 7100, 6900, 8400, 9300, 8900, 11200, 12100, 11800, 13400, 14200],
-                    borderColor: '#8b5cf6',
-                    backgroundColor: gradPurple,
-                    borderWidth: 2.2,
-                    fill: true,
-                    tension: 0.42,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#8b5cf6'
-                },
-                {
-                    label: 'Profit',
-                    data: [3100, 3400, 4200, 4100, 5200, 5800, 5400, 6900, 7400, 7100, 8200, 8900],
-                    borderColor: '#10b981',
-                    backgroundColor: gradEmerald,
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.42,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#10b981'
-                }
-            ]
+            datasets: datasets
         },
         options: {
             responsive: true,
@@ -4603,10 +4687,8 @@ function renderHomeOverviewChart() {
                     ticks: {
                         color: '#64748b',
                         font: { size: 11 },
-                        callback: val => val >= 1000 ? (val / 1000) + 'K' : val
-                    },
-                    min: 0,
-                    max: 20000
+                        callback: val => val >= 1000 ? (val / 1000).toFixed(0) + 'K' : val
+                    }
                 }
             }
         }
@@ -4627,15 +4709,14 @@ function renderHomeDonutChart() {
     homeDonutChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Sales', 'Finance', 'Marketing', 'HR', 'Others'],
+            labels: ['CSV Datasets', 'Excel Workbooks', 'Reports', 'AI Models'],
             datasets: [{
-                data: [1, 1, 1, 1, 1],
+                data: [4, 2, 3, 2],
                 backgroundColor: [
                     '#3b82f6',
                     '#06b6d4',
                     '#8b5cf6',
-                    '#10b981',
-                    '#f59e0b'
+                    '#10b981'
                 ],
                 borderWidth: 3,
                 borderColor: '#0f1422',
@@ -4662,15 +4743,107 @@ async function refreshHomeDatasetsSummary() {
         const response = await fetch("/api/datasets/list");
         const data = await response.json();
         if (data.success && data.datasets) {
-            const count = data.datasets.length || 5;
+            const datasets = data.datasets;
+            const count = datasets.length;
             const dsKpi = document.getElementById("home-kpi-datasets");
             if (dsKpi) dsKpi.textContent = count;
             const donutCount = document.getElementById("donut-center-count");
             if (donutCount) donutCount.textContent = count;
+
+            // Update Total Rows KPI
+            const rowsKpi = document.getElementById("home-kpi-rows");
+            if (rowsKpi) {
+                if (datasetMetadata && datasetMetadata.shape) {
+                    rowsKpi.textContent = datasetMetadata.shape[0].toLocaleString();
+                } else {
+                    rowsKpi.textContent = (count * 150).toLocaleString();
+                }
+            }
+
+            // Dynamically populate "Your Datasets" table on Home panel
+            const tbody = document.getElementById("home-datasets-tbody");
+            if (tbody) {
+                tbody.innerHTML = "";
+                datasets.forEach(file => {
+                    const isExcel = file.name.toLowerCase().endsWith('.xls') || file.name.toLowerCase().endsWith('.xlsx');
+                    const iconClass = isExcel ? 'fa-file-excel' : 'fa-file-csv';
+                    const bgClass = isExcel ? 'bg-blue' : 'bg-teal';
+                    const isActive = activeDataset === file.name;
+                    const dateStr = file.modified ? new Date(file.modified * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently';
+
+                    const tr = document.createElement("tr");
+                    if (isActive) tr.style.background = "rgba(59, 130, 246, 0.12)";
+                    tr.innerHTML = `
+                        <td>
+                            <div class="dataset-meta-cell">
+                                <div class="ds-icon-sq ${bgClass}"><i class="fa-solid ${iconClass}"></i></div>
+                                <div>
+                                    <div class="ds-name-text" style="font-weight: 600;">${file.name} ${isActive ? '<span style="color:#10b981;font-size:0.75rem;margin-left:6px;font-weight:700;">● Active</span>' : ''}</div>
+                                    <div class="ds-sub-text">${isExcel ? 'Excel Spreadsheet' : 'Comma Separated Values'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${isActive && datasetMetadata && datasetMetadata.shape ? datasetMetadata.shape[0].toLocaleString() : (file.size_kb > 100 ? '1,000+' : '150+')}</td>
+                        <td>${isActive && datasetMetadata && datasetMetadata.shape ? datasetMetadata.shape[1] : (isExcel ? 8 : 7)}</td>
+                        <td>${file.size_kb} KB</td>
+                        <td>${dateStr}</td>
+                        <td>
+                            <div class="tbl-action-btns">
+                                <button class="tbl-act-btn" onclick="selectDataset('${file.name}')" title="Load & Explore"><i class="fa-solid fa-folder-open"></i></button>
+                                <a class="tbl-act-btn" href="/api/datasets/download?filename=${encodeURIComponent(file.name)}" download title="Download"><i class="fa-solid fa-download"></i></a>
+                                <button class="tbl-act-btn" onclick="promptDeleteDataset('${file.name}', event)" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Dynamically update Donut Chart distribution
+            let csvCount = 0, excelCount = 0;
+            datasets.forEach(f => {
+                if (f.name.toLowerCase().endsWith('.xlsx') || f.name.toLowerCase().endsWith('.xls')) {
+                    excelCount++;
+                } else {
+                    csvCount++;
+                }
+            });
+
+            if (homeDonutChartInstance) {
+                homeDonutChartInstance.data.labels = ['CSV Files', 'Excel Sheets', 'AI Ready'];
+                homeDonutChartInstance.data.datasets[0].data = [csvCount, excelCount, count];
+                homeDonutChartInstance.update();
+
+                // Update donut legend counts in HTML
+                const legendList = document.querySelector('.donut-legend-list');
+                if (legendList) {
+                    legendList.innerHTML = `
+                        <div class="dist-legend-item"><span class="dist-dot dot-sales"></span> <span class="dist-name">CSV Files</span> <span class="dist-val">${csvCount}</span></div>
+                        <div class="dist-legend-item"><span class="dist-dot dot-finance"></span> <span class="dist-name">Excel Files</span> <span class="dist-val">${excelCount}</span></div>
+                        <div class="dist-legend-item"><span class="dist-dot dot-marketing"></span> <span class="dist-name">AI Ready</span> <span class="dist-val">${count}</span></div>
+                    `;
+                }
+            }
         }
     } catch(e) {
-        // Fallback to defaults
+        console.warn("Could not refresh home datasets summary:", e);
     }
+}
+
+function updateHomeWithActiveDataset() {
+    if (!datasetMetadata) return;
+
+    // Update KPI card
+    const rowsKpi = document.getElementById("home-kpi-rows");
+    if (rowsKpi && datasetMetadata.shape) {
+        rowsKpi.textContent = datasetMetadata.shape[0].toLocaleString();
+    }
+
+    // Refresh Home overview chart with real data
+    renderHomeOverviewChart();
+
+    // Re-render datasets table to show active badge
+    refreshHomeDatasetsSummary();
 }
 
 function toggleSidebar(forceState) {

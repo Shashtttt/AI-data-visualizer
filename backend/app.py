@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify, render_template, session, send_from_directory, redirect
 import os
 import secrets
@@ -109,17 +110,14 @@ def me():
 @login_required
 def sample_datasets():
     try:
-        import generate_datasets
-        generate_datasets.create_sample_datasets()
-        
-        sample_files = [f for f in os.listdir(DATASETS_DIR) if f.lower().endswith(('.csv', '.xlsx', '.xls'))]
+        sample_files = [f for f in os.listdir(DATASETS_DIR) if f.lower().endswith(('.csv', '.xlsx', '.xls'))] if os.path.exists(DATASETS_DIR) else []
         return jsonify({
             "success": True,
-            "message": "Sample datasets generated and available.",
+            "message": "Sample datasets available.",
             "samples": sample_files
         }), 200
     except Exception as e:
-        return jsonify({"error": f"Failed to generate sample datasets: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to get sample datasets: {str(e)}"}), 500
 
 @app.route('/api/datasets/list', methods=['GET'])
 @login_required
