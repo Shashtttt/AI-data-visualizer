@@ -4643,11 +4643,92 @@ kbd {
     display: flex !important;
     flex-direction: row !important;
     min-height: 100vh;
+    width: 100%;
     background: #080c16;
     color: #f1f5f9;
     position: relative;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
+
+#app-view.hidden,
+.app-layout-sidebar.hidden {
+    display: none !important;
+}
+
+#auth-view.hidden {
+    display: none !important;
+}
+
+/* App Main Layout Area */
+.app-main-layout {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: calc(100% - 260px);
+    background: #080c16;
+    min-height: 100vh;
+}
+
+.app-main-layout .workspace-content {
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    flex: 1 1 auto;
+    min-height: auto !important;
+}
+
+.app-main-layout .tab-panel {
+    width: 100%;
+    padding: 24px 28px;
+    box-sizing: border-box;
+}
+
+.app-main-layout .tab-panel:not(.active) {
+    display: none !important;
+}
+
+.app-main-layout .tab-panel.active {
+    display: flex !important;
+    flex-direction: column;
+}
+
+/* Fix sample cards styling */
+.sample-showroom-section {
+    margin-top: 32px;
+    width: 100%;
+}
+
+.sample-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+    gap: 18px !important;
+    width: 100% !important;
+}
+
+.sample-card {
+    background: #0f1422 !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    padding: 18px 20px !important;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.sample-card h4 {
+    color: #ffffff !important;
+}
+
+.sample-card-desc {
+    color: #94a3b8 !important;
+}
+
 
 /* Sidebar Backdrop for Mobile */
 .sidebar-backdrop {
