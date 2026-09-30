@@ -61,12 +61,20 @@ INDUSTRY_KEYWORDS = {
 
 
 def detect_industry(df):
-    col_text = " ".join(df.columns.str.lower().tolist())
-    scores = {}
-    for industry, keywords in INDUSTRY_KEYWORDS.items():
-        scores[industry] = sum(1 for kw in keywords if kw in col_text)
-    best = max(scores, key=scores.get)
-    return best if scores[best] > 0 else "generic"
+    """
+    Classifies industry domain using TF-IDF Vector Space Model and Cosine Distance.
+    """
+    try:
+        import agent_advisor
+        res = agent_advisor.detect_detailed_industry(df)
+        return res.get("key", "generic")
+    except Exception:
+        col_text = " ".join(df.columns.str.lower().tolist())
+        scores = {}
+        for industry, keywords in INDUSTRY_KEYWORDS.items():
+            scores[industry] = sum(1 for kw in keywords if kw in col_text)
+        best = max(scores, key=scores.get)
+        return best if scores[best] > 0 else "generic"
 
 
 # ---- PROBLEM TYPE DETECTION ----

@@ -276,6 +276,7 @@ function switchTab(tabId) {
             initAgentAdvisor(activeDataset);
         }
     } else if (tabId === "predict") {
+        window.activeDataset = activeDataset;
         if (window.PredictModule && typeof window.PredictModule.init === 'function') {
             window.PredictModule.init();
         }
@@ -727,6 +728,8 @@ async function selectDataset(filename) {
 // Update UI elements dependent on active dataset
 function updateAppStateDataset() {
     if (!activeDataset || !datasetMetadata) return;
+    window.activeDataset = activeDataset;
+    window.datasetMetadata = datasetMetadata;
     
     // Enable tabs
     const navCleaner = document.getElementById("nav-cleaner");
@@ -737,6 +740,11 @@ function updateAppStateDataset() {
     if (navVisualizer) navVisualizer.classList.remove("disabled");
     const navPredict = document.getElementById("nav-predict");
     if (navPredict) navPredict.classList.remove("disabled");
+    
+    const predSel = document.getElementById("predict-file-select");
+    if (predSel && window.PredictModule && typeof window.PredictModule.init === 'function') {
+        window.PredictModule.init();
+    }
     
     // Active dataset card on sidebar & navbar dropdown
     const sbActive = document.getElementById("sidebar-active-dataset");

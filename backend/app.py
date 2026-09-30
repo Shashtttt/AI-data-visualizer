@@ -1567,8 +1567,11 @@ def predict_train():
 
         result = pred.run_full_pipeline(filepath, target_col, feature_cols, industry_override)
 
-        # Store serialized model state in session (without SHAP plot for size)
-        session['predict_state'] = {
+        # Store serialized model state in server-side memory store (avoids cookie header overflow)
+        state_key = f"{uid}_{filename}_{target_col}"
+        if not hasattr(app, '_predict_state_store'):
+            app._predict_state_store = {}
+        app._predict_state_store[state_key] = {
             '_models_serialized': result['_models_serialized'],
             '_preprocessor_bytes': result['_preprocessor_bytes'],
             '_best_model_name': result['_best_model_name'],
@@ -1578,6 +1581,7 @@ def predict_train():
             'feature_cols': result['feature_cols'],
             'baseline_row': result.get('baseline_row', {}),
         }
+        session['predict_state_key'] = state_key
 
         # Return everything except raw model bytes
         safe_result = {k: v for k, v in result.items()
@@ -1591,6 +1595,15 @@ def predict_train():
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
 
+def _get_current_predict_state():
+    """Retrieves active model state from server-side store or legacy session."""
+    store = getattr(app, '_predict_state_store', {})
+    state_key = session.get('predict_state_key')
+    if state_key and state_key in store:
+        return store[state_key]
+    return session.get('predict_state')
+
+
 @app.route('/api/predict/whatif', methods=['POST'])
 @login_required
 def predict_whatif():
@@ -1600,7 +1613,7 @@ def predict_whatif():
     changes = data.get('changes', {})       # {feature_name: new_value}
     base_row = data.get('base_row')         # optional override; uses session baseline
 
-    state = session.get('predict_state')
+    state = _get_current_predict_state()
     if not state:
         return jsonify({"error": "No trained model in session. Please train a model first."}), 400
 
@@ -1626,7 +1639,7 @@ def predict_recommend():
     import predictor as pred
     data = request.get_json() or {}
 
-    state = session.get('predict_state')
+    state = _get_current_predict_state()
     if not state:
         return jsonify({"error": "No trained model in session."}), 400
 

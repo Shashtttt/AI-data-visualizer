@@ -600,36 +600,57 @@ def detect_outliers(filepath, method="iqr", threshold=1.5, columns=None):
     outlier_info = {}
     total_outlier_rows = set()
 
-    for col in numeric_cols:
-        series = df[col].dropna()
-        if series.empty:
-            continue
-        
-        if method == "zscore":
-            mean = series.mean()
-            std = series.std()
-            if std == 0:
-                outliers_mask = pd.Series(False, index=series.index)
-            else:
-                z_scores = (series - mean).abs() / std
-                outliers_mask = z_scores > threshold
-        else: # iqr
-            q1 = series.quantile(0.25)
-            q3 = series.quantile(0.75)
-            iqr = q3 - q1
-            lower_bound = q1 - (threshold * iqr)
-            upper_bound = q3 + (threshold * iqr)
-            outliers_mask = (series < lower_bound) | (series > upper_bound)
+    if method in ["isolation_forest", "iforest"]:
+        try:
+            from sklearn.ensemble import IsolationForest
+            contamination = float(threshold) if (0.01 <= float(threshold) <= 0.5) else 0.05
+            X_num = df[numeric_cols].fillna(df[numeric_cols].median())
+            if len(X_num) >= 5 and len(numeric_cols) > 0:
+                iso = IsolationForest(contamination=contamination, random_state=42, n_estimators=100)
+                preds = iso.fit_predict(X_num)
+                scores = -iso.score_samples(X_num)  # higher = more anomalous
+                outlier_indices = df.index[preds == -1].tolist()
+                total_outlier_rows.update(outlier_indices)
+                outlier_info["multivariate_isolation_forest"] = {
+                    "algorithm": "Isolation Forest (Liu et al., 2008)",
+                    "outlier_count": len(outlier_indices),
+                    "contamination": contamination,
+                    "outlier_indices": outlier_indices[:50],
+                    "top_anomaly_scores": [round(float(s), 4) for s in np.sort(scores)[::-1][:10]]
+                }
+        except Exception as e:
+            outlier_info["isolation_forest_error"] = str(e)
+    else:
+        for col in numeric_cols:
+            series = df[col].dropna()
+            if series.empty:
+                continue
+            
+            if method == "zscore":
+                mean = series.mean()
+                std = series.std()
+                if std == 0:
+                    outliers_mask = pd.Series(False, index=series.index)
+                else:
+                    z_scores = (series - mean).abs() / std
+                    outliers_mask = z_scores > threshold
+            else: # iqr
+                q1 = series.quantile(0.25)
+                q3 = series.quantile(0.75)
+                iqr = q3 - q1
+                lower_bound = q1 - (threshold * iqr)
+                upper_bound = q3 + (threshold * iqr)
+                outliers_mask = (series < lower_bound) | (series > upper_bound)
 
-        outlier_indices = series[outliers_mask].index.tolist()
-        total_outlier_rows.update(outlier_indices)
-        
-        outlier_info[col] = {
-            "outlier_count": len(outlier_indices),
-            "outlier_indices": outlier_indices[:50],
-            "min_outlier": float(series[outliers_mask].min()) if not series[outliers_mask].empty else None,
-            "max_outlier": float(series[outliers_mask].max()) if not series[outliers_mask].empty else None
-        }
+            outlier_indices = series[outliers_mask].index.tolist()
+            total_outlier_rows.update(outlier_indices)
+            
+            outlier_info[col] = {
+                "outlier_count": len(outlier_indices),
+                "outlier_indices": outlier_indices[:50],
+                "min_outlier": float(series[outliers_mask].min()) if not series[outliers_mask].empty else None,
+                "max_outlier": float(series[outliers_mask].max()) if not series[outliers_mask].empty else None
+            }
 
     return {
         "method": method,
@@ -643,6 +664,7 @@ def detect_outliers(filepath, method="iqr", threshold=1.5, columns=None):
 def handle_outliers(filepath, method="iqr", threshold=1.5, action="remove", columns=None):
     """
     Handles outliers by removing outlier rows or capping them (Winsorizing).
+    Supports statistical IQR/Z-score as well as unsupervised Isolation Forest AI.
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
@@ -657,18 +679,30 @@ def handle_outliers(filepath, method="iqr", threshold=1.5, action="remove", colu
 
     if action == "remove":
         outlier_rows = set()
-        for col in numeric_cols:
-            series = df[col]
-            if method == "zscore":
-                mean, std = series.mean(), series.std()
-                if std > 0:
-                    mask = ((series - mean).abs() / std) > threshold
+        if method in ["isolation_forest", "iforest"]:
+            try:
+                from sklearn.ensemble import IsolationForest
+                contamination = float(threshold) if (0.01 <= float(threshold) <= 0.5) else 0.05
+                X_num = df[numeric_cols].fillna(df[numeric_cols].median())
+                if len(X_num) >= 5 and len(numeric_cols) > 0:
+                    iso = IsolationForest(contamination=contamination, random_state=42, n_estimators=100)
+                    preds = iso.fit_predict(X_num)
+                    outlier_rows.update(df.index[preds == -1].tolist())
+            except Exception:
+                pass
+        else:
+            for col in numeric_cols:
+                series = df[col]
+                if method == "zscore":
+                    mean, std = series.mean(), series.std()
+                    if std > 0:
+                        mask = ((series - mean).abs() / std) > threshold
+                        outlier_rows.update(df[mask].index.tolist())
+                else: # iqr
+                    q1, q3 = series.quantile(0.25), series.quantile(0.75)
+                    iqr = q3 - q1
+                    mask = (series < (q1 - threshold * iqr)) | (series > (q3 + threshold * iqr))
                     outlier_rows.update(df[mask].index.tolist())
-            else: # iqr
-                q1, q3 = series.quantile(0.25), series.quantile(0.75)
-                iqr = q3 - q1
-                mask = (series < (q1 - threshold * iqr)) | (series > (q3 + threshold * iqr))
-                outlier_rows.update(df[mask].index.tolist())
 
         df.drop(index=list(outlier_rows), inplace=True)
         df.reset_index(drop=True, inplace=True)

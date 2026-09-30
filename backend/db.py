@@ -97,12 +97,21 @@ def register_user(username, email, password):
         try:
             from firebase_storage_helper import create_firebase_user
             result = create_firebase_user(username, email, password)
-            if result["success"]:
+            if result.get("success"):
                 # Also mirror to SQLite so local session lookup still works
                 _sqlite_register_mirror(username, email, password)
-            return result
+                return result
+
+            # If user input validation error (duplicate email or weak password), return it
+            err_msg = result.get("message", "")
+            if "already registered" in err_msg.lower() or "at least 6 characters" in err_msg.lower():
+                return result
+
+            # Otherwise, Firebase configuration/provider failed (e.g. CONFIGURATION_NOT_FOUND)
+            # Gracefully fallback to SQLite so user can register and use the app immediately!
+            print(f"[Auth] Firebase register failed ({err_msg}). Falling back to local SQLite.")
         except Exception as e:
-            print(f"[Auth] Firebase register error, falling back to SQLite: {e}")
+            print(f"[Auth] Firebase register exception, falling back to SQLite: {e}")
 
     # ── SQLite fallback ──
     return _sqlite_register(username, email, password)

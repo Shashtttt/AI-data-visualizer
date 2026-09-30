@@ -1,6 +1,6 @@
-ï»¿/*                                                            
-   predict.js     Multi-Industry Predictive Analytics Wizard
-                                                               */
+/* ==========================================================================
+   predict.js - Multi-Industry Predictive Analytics and AutoML Wizard
+   ========================================================================== */
 
 const PredictModule = (() => {
   //    State   
@@ -72,27 +72,31 @@ const PredictModule = (() => {
   }
 
   //    Step 1: Setup   
-  function initStep1() {
-    // Populate dataset selector
+    function initStep1() {
     const sel = $("predict-file-select");
     if (!sel) return;
-    sel.innerHTML = '<option value="">  Select a dataset  </option>';
+    sel.innerHTML = '<option value="">-- Select a dataset --</option>';
     fetch("/api/datasets/list")
       .then((r) => r.json())
       .then((res) => {
-        if (res.datasets) {
+        if (res && res.datasets && res.datasets.length > 0) {
           res.datasets.forEach((d) => {
             const o = document.createElement("option");
             o.value = d.name;
-            o.textContent = `${d.name} (${d.size_kb || "?"}KB)`;
+            o.textContent = `${d.name} (${d.size_kb || "?"} KB)`;
             sel.appendChild(o);
           });
-          if (typeof activeDataset === "string" && activeDataset) {
-            sel.value = activeDataset;
+          const curr = (typeof activeDataset === "string" && activeDataset) ? activeDataset : (window.activeDataset || "");
+          if (curr) {
+            sel.value = curr;
+          } else if (res.datasets.length > 0) {
+            sel.value = res.datasets[0].name;
           }
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to load datasets for predict:", err);
+      });
   }
 
   async function analyzeDataset() {
@@ -241,7 +245,7 @@ const PredictModule = (() => {
         if (m.error) {
           tr.innerHTML = `<td>${name}${isBest ? '<span class="model-best-badge"> ­ Best</span>' : ""}</td><td colspan="4" style="color:#ef4444">Error: ${m.error}</td>`;
         } else {
-          const cv = `${(m.cv_mean || 0).toFixed(4)} Â± ${(m.cv_std || 0).toFixed(4)}`;
+          const cv = `${(m.cv_mean || 0).toFixed(4)} ± ${(m.cv_std || 0).toFixed(4)}`;
           if (isReg) {
             tr.innerHTML = `
               <td>${name}${isBest ? '<span class="model-best-badge"> ­ Best</span>' : ""}</td>
@@ -266,7 +270,7 @@ const PredictModule = (() => {
     const header = $("predict-model-header");
     if (header) {
       if (isReg) {
-        header.innerHTML = "<tr><th>Model</th><th>RÂ²</th><th>RMSE</th><th>MAE</th><th>CV Score</th></tr>";
+        header.innerHTML = "<tr><th>Model</th><th>R²</th><th>RMSE</th><th>MAE</th><th>CV Score</th></tr>";
       } else {
         header.innerHTML = "<tr><th>Model</th><th>Accuracy</th><th>F1</th><th>AUC</th><th>CV Score</th></tr>";
       }

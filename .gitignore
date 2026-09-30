@@ -20,8 +20,15 @@ datasets/
 .gemini/
 .vscode/
 .idea/
+scratch/
 *.log
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Dissertation Reports & Presentations
+*.pptx
+*.docx
+*.pdf
+build_*.py

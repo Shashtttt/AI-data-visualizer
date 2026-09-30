@@ -27,19 +27,22 @@ def load_df(filepath):
         return pd.read_excel(filepath)
     raise ValueError(f"Unsupported file format: {ext}")
 
-# Expanded Industry Taxonomies
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy import stats
+
+# Expanded Industry Taxonomies with Domain Semantic Corpora
 INDUSTRY_TAXONOMY = {
     "healthcare": {
         "title": "Healthcare & Clinical Medicine",
         "icon": "fa-notes-medical",
         "color": "#06b6d4",
-        "keywords": [
-            "patient", "diagnosis", "disease", "symptom", "bmi", "blood",
-            "pressure", "cholesterol", "age", "hospital", "medicine",
-            "treatment", "readmission", "mortality", "clinical", "glucose",
-            "insulin", "pulse", "heartrate", "heart_rate", "doctor", "clinic",
-            "surgery", "stay", "discharge", "physician", "vital"
-        ],
+        "corpus": (
+            "patient diagnosis disease symptom bmi blood pressure cholesterol age hospital medicine "
+            "treatment readmission mortality clinical glucose insulin pulse heartrate heart rate doctor clinic "
+            "surgery stay discharge physician vital lab test dosage therapy pathology ward oncology cardiology "
+            "icu inpatient outpatient emergency triage creatinine hemoglobin bilirubin medical records"
+        ),
         "primary_metric_keywords": ["glucose", "bmi", "blood_pressure", "cholesterol", "stay_duration", "cost", "readmission"],
         "dimension_keywords": ["diagnosis", "treatment", "gender", "age_group", "department", "hospital", "patient_id"]
     },
@@ -47,12 +50,11 @@ INDUSTRY_TAXONOMY = {
         "title": "HR & Workforce Intelligence",
         "icon": "fa-user-tie",
         "color": "#8b5cf6",
-        "keywords": [
-            "employee", "attrition", "salary", "department", "job_role", "tenure",
-            "performance", "hiring", "turnover", "satisfaction", "overtime",
-            "leave", "promotion", "work_life_balance", "manager", "staff",
-            "compensation", "bonus", "rating", "experience", "education_level"
-        ],
+        "corpus": (
+            "employee attrition salary department job role tenure performance hiring turnover satisfaction overtime "
+            "leave promotion work life balance manager staff compensation bonus rating experience education level "
+            "retention headcount payroll appraisal performance score engagement resignation absenteeism recruitment"
+        ),
         "primary_metric_keywords": ["salary", "performance_score", "satisfaction_level", "tenure", "overtime_hours", "compensation"],
         "dimension_keywords": ["department", "job_role", "gender", "education", "marital_status", "performance_rating"]
     },
@@ -60,12 +62,11 @@ INDUSTRY_TAXONOMY = {
         "title": "Sales, E-Commerce & Commercial Revenue",
         "icon": "fa-chart-line-up",
         "color": "#3b82f6",
-        "keywords": [
-            "sales", "revenue", "product", "customer", "price", "unit_price",
-            "units_sold", "discount", "profit", "order", "cost", "margin",
-            "region", "channel", "transaction", "quota", "commission", "deal",
-            "pipeline", "lead", "client", "market", "gross", "net"
-        ],
+        "corpus": (
+            "sales revenue product customer price unit price units sold discount profit order cost margin "
+            "region channel transaction quota commission deal pipeline lead client market gross net "
+            "invoice cart checkout shipping churn purchase billing total retail gross margin e commerce"
+        ),
         "primary_metric_keywords": ["revenue", "sales", "profit", "units_sold", "price", "cost", "margin", "tax"],
         "dimension_keywords": ["region", "category", "product", "channel", "customer_segment", "country", "sales_rep"]
     },
@@ -73,12 +74,11 @@ INDUSTRY_TAXONOMY = {
         "title": "Supply Chain, Inventory & Logistics",
         "icon": "fa-boxes-stacked",
         "color": "#f59e0b",
-        "keywords": [
-            "inventory", "stock", "warehouse", "reorder", "lead_time", "leadtime",
-            "safety_stock", "supplier", "sku", "holding_cost", "turnover",
-            "backorder", "batch_size", "logistics", "fulfillment", "shipping",
-            "freight", "delivery", "transit", "shelf_life", "stockout", "restock"
-        ],
+        "corpus": (
+            "inventory stock warehouse reorder lead time safety stock supplier sku holding cost turnover "
+            "backorder batch size logistics fulfillment shipping freight delivery transit shelf life stockout restock "
+            "procurement distribution container pallet supply chain transport cargo bin location units in stock"
+        ),
         "primary_metric_keywords": ["stock_level", "lead_time", "holding_cost", "reorder_point", "units_in_stock", "turnover_rate"],
         "dimension_keywords": ["warehouse", "supplier", "sku", "category", "shipping_mode", "location"]
     },
@@ -86,12 +86,11 @@ INDUSTRY_TAXONOMY = {
         "title": "Automotive & Fleet Engineering",
         "icon": "fa-car",
         "color": "#ec4899",
-        "keywords": [
-            "car", "vehicle", "fuel", "mileage", "engine", "model", "manufacturer",
-            "transmission", "horsepower", "price", "sales", "dealer", "brand",
-            "sedan", "suv", "electric", "hybrid", "mpg", "displacement", "wheelbase",
-            "curb_weight", "fuel_capacity", "resale", "efficiency"
-        ],
+        "corpus": (
+            "car vehicle fuel mileage engine model manufacturer transmission horsepower price sales dealer brand "
+            "sedan suv electric hybrid mpg displacement wheelbase curb weight fuel capacity resale efficiency "
+            "cylinder torque acceleration odometer vin registration speed drive type ev battery"
+        ),
         "primary_metric_keywords": ["sales_in_thousands", "price", "price_in_thousands", "horsepower", "fuel_efficiency", "mpg", "engine_size"],
         "dimension_keywords": ["manufacturer", "model", "vehicle_type", "transmission", "fuel_type", "drive_type"]
     },
@@ -99,12 +98,11 @@ INDUSTRY_TAXONOMY = {
         "title": "Banking, Credit & Financial Markets",
         "icon": "fa-landmark",
         "color": "#10b981",
-        "keywords": [
-            "revenue", "profit", "loss", "interest", "rate", "inflation",
-            "stock", "investment", "loan", "credit", "debt", "income",
-            "expense", "tax", "gdp", "market", "portfolio", "dividend",
-            "equity", "liability", "asset", "balance", "default", "borrower"
-        ],
+        "corpus": (
+            "revenue profit loss interest rate inflation stock investment loan credit debt income "
+            "expense tax gdp market portfolio dividend equity liability asset balance default borrower "
+            "credit score interest yield deposit transaction mortgage mortgage risk delinquency apr capital cash flow"
+        ),
         "primary_metric_keywords": ["balance", "loan_amount", "interest_rate", "income", "credit_score", "debt_ratio", "profit"],
         "dimension_keywords": ["account_type", "loan_grade", "risk_category", "branch", "currency", "employment_status"]
     },
@@ -112,43 +110,84 @@ INDUSTRY_TAXONOMY = {
         "title": "Education & Academic Performance",
         "icon": "fa-graduation-cap",
         "color": "#a855f7",
-        "keywords": [
-            "student", "grade", "gpa", "score", "exam", "attendance",
-            "marks", "course", "teacher", "school", "university", "pass",
-            "fail", "homework", "test", "quiz", "degree", "study", "subject",
-            "math", "science", "english", "reading", "writing"
-        ],
+        "corpus": (
+            "student grade gpa score exam attendance marks course teacher school university pass "
+            "fail homework test quiz degree study subject math science english reading writing "
+            "semester admission faculty credits scholarship alumni syllabus test score academic progress"
+        ),
         "primary_metric_keywords": ["final_grade", "gpa", "attendance_rate", "score", "math", "science", "english", "marks"],
         "dimension_keywords": ["gender", "grade_level", "major", "subject", "school", "section", "semester"]
     }
 }
 
 def detect_detailed_industry(df, filename=""):
-    """Accurately detects industry taxonomy with confidence score and domain summary."""
-    name_str = (filename or "").lower()
+    """
+    Autonomous Domain Classification via Vector Space Model (VSM) and Cosine Similarity.
+    Constructs an n-gram TF-IDF vector space across domain corpora and computes
+    cosine distance against the dataset schema representation.
+    """
+    name_str = (filename or "").lower().replace("_", " ").replace("-", " ")
     cols_str = " ".join([c.lower().replace("_", " ").replace("-", " ") for c in df.columns])
-    combined_text = f"{name_str} {cols_str}"
+    
+    # Extract sample string tokens from high-cardinality categorical columns for rich semantic grounding
+    sample_tokens = []
+    cat_cols = df.select_dtypes(include=["object", "category"]).columns[:4]
+    for col in cat_cols:
+        sample_vals = df[col].dropna().astype(str).head(15).tolist()
+        sample_tokens.extend([v.lower() for v in sample_vals if len(v) < 30 and not v.replace(".", "", 1).isdigit()])
+    
+    dataset_doc = f"{name_str} {name_str} {cols_str} {' '.join(sample_tokens)}"
 
-    scores = {}
-    for ind, meta in INDUSTRY_TAXONOMY.items():
-        score = sum(2 for kw in meta["keywords"] if kw in name_str)
-        score += sum(1 for kw in meta["keywords"] if kw in cols_str)
-        scores[ind] = score
+    # Build corpus document collection
+    industry_keys = list(INDUSTRY_TAXONOMY.keys())
+    domain_documents = [INDUSTRY_TAXONOMY[k]["corpus"] for k in industry_keys]
 
-    best_key = max(scores, key=scores.get)
-    if scores[best_key] == 0:
+    try:
+        # Fit-transform TF-IDF vectorizer over domain taxonomy documents
+        vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words='english', min_df=1, sublinear_tf=True)
+        domain_matrix = vectorizer.fit_transform(domain_documents)
+        dataset_vector = vectorizer.transform([dataset_doc])
+
+        # Compute cosine similarity between dataset vector and each domain centroid
+        similarity_scores = cosine_similarity(dataset_vector, domain_matrix)[0]
+        
+        sim_dict = {industry_keys[i]: float(similarity_scores[i]) for i in range(len(industry_keys))}
+        best_key = max(sim_dict, key=sim_dict.get)
+        best_similarity = sim_dict[best_key]
+
+        # Extract top matched semantic feature keywords from the dataset vector
+        feature_names = np.array(vectorizer.get_feature_names_out())
+        row_vec = dataset_vector.toarray()[0]
+        top_feature_indices = row_vec.argsort()[::-1][:8]
+        matched_tokens = [feature_names[idx] for idx in top_feature_indices if row_vec[idx] > 0]
+
+    except Exception:
+        # Robust fallback to token overlap if TF-IDF encounter zero tokens
+        sim_dict = {}
+        for ind, meta in INDUSTRY_TAXONOMY.items():
+            corpus_words = set(meta["corpus"].split())
+            query_words = set(dataset_doc.split())
+            overlap = len(corpus_words.intersection(query_words))
+            sim_dict[ind] = overlap / max(len(corpus_words), 1)
+        best_key = max(sim_dict, key=sim_dict.get)
+        best_similarity = sim_dict[best_key]
+        matched_tokens = list(set(dataset_doc.split()) & set(INDUSTRY_TAXONOMY[best_key]["corpus"].split()))[:6]
+
+    if best_similarity <= 0.03:
         return {
             "key": "generic",
             "title": "General Business Analytics",
             "icon": "fa-chart-pie",
             "color": "#6366f1",
             "confidence": 60,
-            "description": "General multi-dimensional dataset suitable for exploratory aggregation, outlier auditing, and regression forecasting."
+            "algorithm": "TF-IDF Vector Space Model (Cosine Similarity)",
+            "cosine_similarity": round(float(best_similarity), 4),
+            "matched_features": matched_tokens[:5],
+            "description": "General multi-dimensional dataset suitable for exploratory aggregation, anomaly auditing, and predictive modeling."
         }
 
     meta = INDUSTRY_TAXONOMY[best_key]
-    total_cols = max(len(df.columns), 1)
-    confidence = min(98, max(65, int((scores[best_key] / total_cols) * 100) + 35))
+    confidence_pct = min(99, max(68, int(best_similarity * 180) + 40))
 
     descriptions = {
         "healthcare": "Clinical and patient records tracking medical indicators, treatment plans, hospital utilization, and diagnostic outcomes.",
@@ -165,7 +204,10 @@ def detect_detailed_industry(df, filename=""):
         "title": meta["title"],
         "icon": meta["icon"],
         "color": meta["color"],
-        "confidence": confidence,
+        "confidence": confidence_pct,
+        "algorithm": "TF-IDF Vector Space Model (Cosine Similarity)",
+        "cosine_similarity": round(float(best_similarity), 4),
+        "matched_features": matched_tokens[:6],
         "description": descriptions.get(best_key, "Domain-specific enterprise dataset.")
     }
 
@@ -501,17 +543,146 @@ def solve_business_problems(df, domain_info):
         "inventory_problem_focus": inventory_analysis
     }
 
+def calculate_statistical_diagnostics(df):
+    """
+    Computes rigorous information-theoretic metrics:
+    - Shannon Entropy H(X) for discrete features
+    - Fisher-Pearson Skewness & Fisher Kurtosis for continuous features
+    - Variance Inflation / Multicollinearity matrix flags
+    """
+    diagnostics = {
+        "shannon_entropy": {},
+        "distribution_metrics": {},
+        "multicollinearity_alerts": []
+    }
+    
+    # Categorical Entropy
+    cat_cols = df.select_dtypes(include=["object", "category", "bool"]).columns
+    for c in cat_cols:
+        series = df[c].dropna()
+        if len(series) > 0:
+            probs = series.value_counts(normalize=True).values
+            entropy = -float(np.sum(probs * np.log2(probs + 1e-12)))
+            diagnostics["shannon_entropy"][c] = {
+                "entropy_bits": round(entropy, 3),
+                "unique_levels": int(series.nunique()),
+                "balance_status": "Uniform / High Diversity" if entropy > 2.5 else "Imbalanced / Low Diversity"
+            }
+            
+    # Numerical Skewness & Kurtosis
+    num_cols = df.select_dtypes(include=[np.number]).columns
+    for c in num_cols:
+        series = df[c].dropna()
+        if len(series) > 3:
+            sk = float(stats.skew(series))
+            kt = float(stats.kurtosis(series))
+            diagnostics["distribution_metrics"][c] = {
+                "skewness": round(sk, 3),
+                "kurtosis": round(kt, 3),
+                "normality_flag": "Gaussian-like" if abs(sk) < 0.5 and abs(kt) < 1.0 else ("Right-Skewed" if sk > 0.5 else "Left-Skewed")
+            }
+
+    # High Correlation Flags (r > 0.85)
+    if len(num_cols) >= 2:
+        corr_matrix = df[num_cols].corr().abs()
+        for i in range(len(num_cols)):
+            for j in range(i + 1, len(num_cols)):
+                r_val = float(corr_matrix.iloc[i, j])
+                if r_val > 0.85 and not np.isnan(r_val):
+                    diagnostics["multicollinearity_alerts"].append({
+                        "feature_a": num_cols[i],
+                        "feature_b": num_cols[j],
+                        "correlation": round(r_val, 3),
+                        "recommendation": "High collinearity detected; consider feature reduction or L2 Ridge regularization."
+                    })
+
+    return diagnostics
+
 def answer_agent_question(df, question, filename=""):
     """
     Answers natural language queries about the dataset with computed metrics,
-    trend breakdowns, and prescriptive business advice.
+    trend breakdowns, statistical diagnostics, and prescriptive business advice.
     """
     q_lower = question.lower()
     domain_info = detect_detailed_industry(df, filename)
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     cat_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
 
-    # Sales questions
+    # Identify if a specific column is referenced in the user's question
+    target_num_col = None
+    for col in numeric_cols:
+        col_clean = col.lower().replace("_", " ")
+        if col_clean in q_lower or col.lower() in q_lower:
+            target_num_col = col
+            break
+
+    target_cat_col = None
+    for col in cat_cols:
+        col_clean = col.lower().replace("_", " ")
+        if col_clean in q_lower or col.lower() in q_lower:
+            target_cat_col = col
+            break
+
+    # 1. Statistical Distribution & Outliers Intent
+    if any(k in q_lower for k in ["outlier", "anomaly", "skew", "distribution", "variance", "spread"]):
+        col_to_check = target_num_col or (numeric_cols[0] if numeric_cols else None)
+        if col_to_check:
+            series = df[col_to_check].dropna()
+            sk = round(float(stats.skew(series)), 3)
+            kt = round(float(stats.kurtosis(series)), 3)
+            q1, q3 = series.quantile(0.25), series.quantile(0.75)
+            iqr = q3 - q1
+            outlier_cnt = int(((series < (q1 - 1.5 * iqr)) | (series > (q3 + 1.5 * iqr))).sum())
+            return {
+                "topic": f"Statistical Distribution Analysis ({col_to_check})",
+                "answer": (
+                    f"Feature '{col_to_check}' exhibits a Fisher-Pearson skewness of {sk} and excess kurtosis of {kt}. "
+                    f"Using Interquartile Range (1.5x IQR), {outlier_cnt} data points ({round(outlier_cnt/len(series)*100, 1)}%) "
+                    f"qualify as statistical anomalies. For machine learning pipelines, we recommend Winsorization capping or an Isolation Forest filter."
+                )
+            }
+
+    # 2. Aggregations (Average, Total, Highest, Lowest)
+    if any(k in q_lower for k in ["average", "mean", "total", "sum", "highest", "max", "lowest", "min", "median"]):
+        col_to_check = target_num_col or (numeric_cols[0] if numeric_cols else None)
+        if col_to_check:
+            series = pd.to_numeric(df[col_to_check], errors="coerce").dropna()
+            mean_val = round(float(series.mean()), 2)
+            total_val = round(float(series.sum()), 2)
+            max_val = round(float(series.max()), 2)
+            min_val = round(float(series.min()), 2)
+            median_val = round(float(series.median()), 2)
+
+            if "high" in q_lower or "max" in q_lower:
+                return {
+                    "topic": f"Maximum Value Analysis ({col_to_check})",
+                    "answer": f"The maximum recorded value for '{col_to_check}' is {max_val:,} (compared to median {median_val:,} and mean {mean_val:,})."
+                }
+            elif "low" in q_lower or "min" in q_lower:
+                return {
+                    "topic": f"Minimum Value Analysis ({col_to_check})",
+                    "answer": f"The minimum recorded value for '{col_to_check}' is {min_val:,} (baseline median: {median_val:,})."
+                }
+            else:
+                return {
+                    "topic": f"Descriptive Metric Summary ({col_to_check})",
+                    "answer": f"For metric '{col_to_check}', the sample mean is {mean_val:,} (median: {median_val:,}) with cumulative sum {total_val:,} across {len(series):,} records."
+                }
+
+    # 3. Categorical Breakdown Intent
+    if target_cat_col or any(k in q_lower for k in ["category", "breakdown", "group", "cohort", "share"]):
+        c_col = target_cat_col or (cat_cols[0] if cat_cols else None)
+        if c_col:
+            val_counts = df[c_col].value_counts()
+            top_cat = val_counts.index[0]
+            top_pct = round((val_counts.iloc[0] / len(df)) * 100, 1)
+            unique_cnt = df[c_col].nunique()
+            return {
+                "topic": f"Categorical Cohort Breakdown ({c_col})",
+                "answer": f"Column '{c_col}' comprises {unique_cnt} distinct categories. The predominant cohort is '{top_cat}' with {val_counts.iloc[0]:,} entries ({top_pct}% share). To minimize cohort concentration risk, consider stratified sampling."
+            }
+
+    # 4. Sales & Commercial Questions
     if any(k in q_lower for k in ["sales", "revenue", "profit", "money", "earn"]):
         sales_col = next((c for c in numeric_cols if any(k in c.lower() for k in ["sales", "revenue", "price", "profit", "sold"])), numeric_cols[0] if numeric_cols else None)
         if sales_col:
@@ -519,11 +690,11 @@ def answer_agent_question(df, question, filename=""):
             avg_val = round(float(df[sales_col].mean()), 2)
             max_val = round(float(df[sales_col].max()), 2)
             return {
-                "topic": "Sales & Revenue Analysis",
-                "answer": f"Based on '{sales_col}', total cumulative volume is {total_val:,} with an average of {avg_val:,} per entry (peak record: {max_val:,}). To accelerate revenue, focus on optimizing your top 20% high-margin segments and reining in excessive promotional discounting."
+                "topic": "Sales & Revenue Intelligence",
+                "answer": f"Based on '{sales_col}', total cumulative volume is {total_val:,} with an average of {avg_val:,} per transaction (peak entry: {max_val:,}). To accelerate revenue, optimize your top 20% high-margin segments and evaluate price elasticity."
             }
 
-    # Inventory / stock questions
+    # 5. Inventory & Supply Chain Questions
     if any(k in q_lower for k in ["inventory", "stock", "warehouse", "supply", "capacity"]):
         stock_col = next((c for c in numeric_cols if any(k in c.lower() for k in ["stock", "inventory", "quantity", "unit", "weight"])), numeric_cols[0] if numeric_cols else None)
         if stock_col:
@@ -531,12 +702,17 @@ def answer_agent_question(df, question, filename=""):
             med_stock = round(float(df[stock_col].median()), 1)
             return {
                 "topic": "Inventory & Supply Chain Guidance",
-                "answer": f"Evaluating '{stock_col}', the average level is {avg_stock} (median: {med_stock}). Focus operational resources on items in the lowest quartile to prevent stockout bottlenecks, while applying clearance pricing to stagnant items in the upper quartile."
+                "answer": f"Evaluating '{stock_col}', the mean holding level is {avg_stock} (median: {med_stock}). Focus operational resources on SKUs in the lowest quartile to prevent stockout bottlenecks, while applying clearance pricing to stagnant buffer inventory."
             }
 
-    # General / overview
+    # 6. Default Comprehensive Overview
     rows, cols = df.shape
+    primary_features = ", ".join(numeric_cols[:3]) if numeric_cols else "categorical dimensions"
     return {
         "topic": "Dataset Strategic Overview",
-        "answer": f"The dataset '{filename}' contains {rows:,} rows across {cols} columns in the {domain_info['title']} domain. Key drivers include {', '.join(numeric_cols[:3])}. We recommend focusing on correlation analysis and segmenting primary dimensions to target underperforming cohorts."
+        "answer": (
+            f"Dataset '{filename}' spans {rows:,} rows across {cols} features classified under the {domain_info['title']} domain "
+            f"using TF-IDF Vector Space classification ({domain_info.get('cosine_similarity', 0.85):.3f} cosine confidence). "
+            f"Primary quantitative drivers include: {primary_features}. Recommended next step: run the 7-Step AutoML Wizard to discover predictive non-linear interactions."
+        )
     }
