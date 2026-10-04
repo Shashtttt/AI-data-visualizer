@@ -23,6 +23,7 @@ import cleaner
 import firebase_storage_helper as fb
 import share_manager
 import agent_advisor
+from aether_api import aether_bp
 
 # Helper: get current user UID from session
 def _current_uid() -> str:
@@ -33,15 +34,29 @@ app = Flask(__name__,
             static_folder=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static'),
             template_folder=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates'))
 
+app.register_blueprint(aether_bp)
+
 # Set session secret key
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "power_bi_visualizer_secret_key_12984712")
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+@app.before_request
+def handle_options():
+    if request.method == 'OPTIONS':
+        res = jsonify({"status": "ok"})
+        res.headers['Access-Control-Allow-Origin'] = '*'
+        res.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        res.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        return res, 200
 
 @app.after_request
 def add_header(response):
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '-1'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     return response
 
 # Ensure dataset directory exists
@@ -67,6 +82,12 @@ def index():
     if 'user' not in session:
         session['user'] = {'id': 1, 'username': 'Shashvat Rai', 'email': 'shashvat@example.com'}
     return render_template('index.html')
+
+@app.route('/test_webpage.html')
+@app.route('/demo-tables')
+def serve_test_webpage():
+    ext_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'chrome_extension')
+    return send_from_directory(ext_dir, 'test_webpage.html')
 
 # Auth Endpoints
 @app.route('/api/auth/register', methods=['POST'])
@@ -232,6 +253,39 @@ def get_dataset_info():
     try:
         metadata = cleaner.load_dataset(filepath)
         return jsonify({"metadata": metadata, "filename": filename}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/datasets/rows', methods=['GET'])
+@login_required
+def get_dataset_rows():
+    filename = request.args.get('file')
+    if not filename:
+        return jsonify({"error": "Filename is required"}), 400
+    filepath = os.path.join(DATASETS_DIR, os.path.basename(filename))
+    if not os.path.exists(filepath):
+        return jsonify({"error": "File not found"}), 404
+    try:
+        ext = os.path.splitext(filepath)[1].lower()
+        if ext == '.csv':
+            try:
+                df = pd.read_csv(filepath)
+            except Exception:
+                df = pd.read_csv(filepath, encoding='latin1')
+        elif ext in ['.xls', '.xlsx']:
+            df = pd.read_excel(filepath)
+        else:
+            return jsonify({"error": "Unsupported format"}), 400
+        
+        df.columns = [str(c).strip() for c in df.columns]
+        rows = cleaner.sanitize_records(df.head(2000).to_dict(orient="records"))
+        return jsonify({
+            "success": True,
+            "filename": os.path.basename(filename),
+            "columns": list(df.columns),
+            "rows": rows,
+            "total_rows": len(df)
+        }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

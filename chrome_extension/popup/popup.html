@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherBI - AI Data Intelligence</title>
+  <!-- Google Fonts: Inter & Caveat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Draggable / Resizable Divider -->
+  <div id="panelResizeDivider" class="panel-resizer-handle" title="Drag to adjust panel width"></div>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="app-sidebar">
+    <!-- Brand / Logo Area -->
+    <div class="sidebar-header">
+      <div class="brand-logo-container">
+        <div class="brand-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="13" width="5" height="8" rx="2" fill="#facc15" />
+            <rect x="9.5" y="6" width="5" height="15" rx="2" fill="#34d399" />
+            <rect x="17" y="10" width="5" height="11" rx="2" fill="#6ee7b7" />
+          </svg>
+        </div>
+      </div>
+      <div class="brand-text">
+        <h2 class="brand-title">AetherBI</h2>
+        <span class="brand-subtitle">AI Data Intelligence</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs (Vertical List) -->
+    <nav class="sidebar-nav">
+      <!-- 1. Web Data -->
+      <button class="nav-tab active" data-tab="tabWebData" id="navWebData">
+        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+          <path d="M3 9h18"></path>
+          <path d="M3 15h18"></path>
+          <path d="M9 3v18"></path>
+          <path d="M15 3v18"></path>
+        </svg>
+        <span>Web Data</span>
+        <span id="tableCountBadge" class="nav-badge">0</span>
+      </button>
+
+      <!-- 2. Analytics -->
+      <button class="nav-tab" data-tab="tabAnalytics" id="navAnalytics">
+        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path>
+          <circle cx="19" cy="5" r="1.5" fill="currentColor"></circle>
+          <circle cx="5" cy="19" r="1" fill="currentColor"></circle>
+        </svg>
+        <span>Analytics</span>
+      </button>
+
+      <!-- 3. ML / Prediction -->
+      <button class="nav-tab" data-tab="tabML" id="navML">
+        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+          <circle cx="12" cy="12" r="4"></circle>
+        </svg>
+        <span>ML &amp; Predict</span>
+      </button>
+
+      <!-- 4. Documents -->
+      <button class="nav-tab" data-tab="tabDocuments" id="navDocuments">
+        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <line x1="10" y1="9" x2="8" y2="9"></line>
+        </svg>
+        <span>Documents</span>
+      </button>
+
+      <!-- 5. Study -->
+      <button class="nav-tab" data-tab="tabStudy" id="navStudy">
+        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span>Study</span>
+      </button>
+
+      <!-- 6. AI Copilot -->
+      <button class="nav-tab" data-tab="tabCopilot" id="navCopilot">
+        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>AI Copilot</span>
+      </button>
+
+      <!-- 7. Settings -->
+      <button class="nav-tab" data-tab="tabSettings" id="navSettings">
+        <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- Sidebar Bottom Illustration & Tagline -->
+    <div class="sidebar-bottom-art">
+      <div class="wave-bg">
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" class="sidebar-wave-svg">
+          <path d="M 0,30 C 50,55 120,10 200,45 L 200,100 L 0,100 Z" fill="#0d3b31" opacity="0.6"/>
+          <path d="M 0,50 C 70,20 130,65 200,35 L 200,100 L 0,100 Z" fill="#135244" opacity="0.8"/>
+        </svg>
+      </div>
+      <div class="sidebar-tagline-wrap">
+        <svg class="sparkle-deco" width="16" height="16" viewBox="0 0 24 24" fill="#a7f3d0">
+          <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+        </svg>
+        <span class="cursive-tagline">Better Data<br>Brighter Insights</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT MAIN WORKSPACE -->
+  <main class="app-main">
+    <!-- Ambient Corner Glow -->
+    <div class="ambient-glow"></div>
+
+    <!-- Main Header Bar with Live Capability Detection -->
+    <header class="main-header">
+      <div class="main-title-group">
+        <h1 class="main-title" id="topActiveTitle">Web Data</h1>
+        <p class="main-subtitle" id="topActiveSubtitle">Detect, select, and inspect webpage tables.</p>
+      </div>
+
+      <!-- Real-time Capability Status Badges -->
+      <div class="header-action-group">
+        <div class="capabilities-bar" id="capabilitiesBar">
+          <span class="cap-pill cap-active" id="capBrowser" title="Browser Engine (Active)">
+            <span class="cap-dot"></span>Browser
+          </span>
+          <span class="cap-pill" id="capRender" title="Render Python Backend">
+            <span class="cap-dot"></span>Render
+          </span>
+          <span class="cap-pill" id="capFlask" title="Local Python ML (127.0.0.1:5000)">
+            <span class="cap-dot"></span>Python ML
+          </span>
+          <span class="cap-pill" id="capGemini" title="Gemini AI (Client-side)">
+            <span class="cap-dot"></span>Gemini
+          </span>
+        </div>
+
+        <!-- Settings Quick Button -->
+        <button id="btnQuickSettings" class="btn-settings-icon" title="Settings & API Keys">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY (TAB PANES) -->
+    <div class="panes-container">
+
+      <!-- ==========================================
+           TAB 1: WEB DATA (INITIAL SCREEN)
+           ========================================== -->
+      <section id="tabWebData" class="tab-pane active">
+        <!-- Detection Header & Quick Actions -->
+        <div class="table-scan-topbar">
+          <div>
+            <h3 class="section-title">Detected Webpage Tables</h3>
+            <p class="section-subtitle">Real-time table detection with row counts, missing cells, and duplicate analysis.</p>
+          </div>
+          <div class="table-scan-actions">
+            <input type="file" id="inputExcelFile" accept=".xlsx, .xls, .csv" style="position:fixed; top:-9999px; left:-9999px; opacity:0; width:1px; height:1px;">
+            <button type="button" id="btnUploadExcel" class="btn-clean-secondary btn-sm" style="display:inline-flex; align-items:center;">📁 Open Excel / CSV</button>
+            <button id="btnPasteClipboard" class="btn-clean-secondary btn-sm">📋 Paste Sheets</button>
+            <button id="btnLoadDemo" class="btn-clean-secondary btn-sm">⚡ Load Demo</button>
+            <button id="btnRescan" class="btn-clean-primary btn-sm">🔄 Scan Page</button>
+          </div>
+        </div>
+
+        <!-- Dedicated Full Dataset File Upload Dropzone (Solves "pieces and incomplete" issue) -->
+        <div class="full-dataset-dropzone" id="fullDatasetDropzone">
+          <div class="dropzone-content-row">
+            <div class="dropzone-icon-box">📁</div>
+            <div class="dropzone-info">
+              <div class="dropzone-main-text">Open Full Dataset File (.csv, .xlsx, .xls)</div>
+              <div class="dropzone-sub-text">Process full dataset with all rows and columns directly — complete, unchopped, and ready for full cleaning &amp; ML.</div>
+            </div>
+            <button type="button" id="btnBrowseFileDirect" class="btn-clean-primary btn-sm" style="display:inline-flex; align-items:center;">📁 Choose File</button>
+          </div>
+        </div>
+
+        <!-- Multi-table Comparison Banner (when >1 table checked) -->
+        <div id="multiTableBanner" class="multi-table-banner" style="display:none;">
+          <span id="multiTableText">2 tables selected.</span>
+          <div class="multi-table-actions">
+            <button id="btnCompareTables" class="btn-clean-primary btn-xs">📊 Compare Tables</button>
+            <button id="btnJoinTables" class="btn-clean-secondary btn-xs">🔗 Combine / Join</button>
+          </div>
+        </div>
+
+        <!-- Selected Dataset Preview & Quick Table View (Prominently placed at top) -->
+        <div class="dataset-preview-section" id="webDataPreviewWrap" style="margin-top: 14px; margin-bottom: 18px; border: 1.5px solid #10b981; border-radius: 10px; padding: 12px; background: rgba(16, 185, 129, 0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge" style="background:#10b981; color:#fff; font-size:10px; padding:2px 8px; border-radius:4px; font-weight:700;">ACTIVE DATASET</span>
+              <strong id="previewTableName" style="font-size: 13px; color:#0f172a;">Active Dataset Preview</strong>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button id="btnOpenInAnalytics" class="btn-clean-primary btn-xs" title="Open dataset in Analytics studio and Cleaning toolset">📊 Analytics &amp; Cleaner</button>
+              <button id="btnQuickCharts" class="btn-clean-secondary btn-xs" title="Auto-create charts and visual recommendations">📈 View Charts</button>
+              <input type="text" id="previewSearch" class="search-input" placeholder="Search rows..." style="max-width: 140px;">
+              <button id="btnExportCSV" class="btn-clean-secondary btn-xs">Export CSV</button>
+            </div>
+          </div>
+          <div class="table-container" style="max-height: 220px; overflow-y: auto;">
+            <table class="data-table" id="previewTable">
+              <thead id="previewThead"><tr><th>No dataset active</th></tr></thead>
+              <tbody id="previewTbody"><tr><td style="text-align:center; padding: 20px; color:#94a3b8;">Click any table below or Choose File to inspect records.</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination-bar" style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <span id="previewPageInfo" class="page-info">Showing 0 rows</span>
+            <div class="page-controls">
+              <button id="btnPrevPage" class="btn-page-nav" disabled>&laquo; Prev</button>
+              <button id="btnNextPage" class="btn-page-nav" disabled>Next &raquo;</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; margin-top: 12px;">
+          <h4 style="margin: 0; font-size: 13px; color: #334155; font-weight: 700;">All Detected Webpage Tables</h4>
+          <span style="font-size: 11px; color: #64748b;">Click any table card to load &amp; preview</span>
+        </div>
+
+        <!-- Detected Tables List Grid -->
+        <div id="tableListContainer" class="table-cards-grid">
+          <!-- Dynamically populated table cards -->
+        </div>
+
+        <!-- Raw Paste Direct Input Accordion -->
+        <details class="paste-details-box">
+          <summary class="paste-summary"><span>▶ Or paste raw Sheets / Excel / CSV / JSON text directly</span></summary>
+          <div class="paste-body">
+            <textarea id="pasteInput" rows="4" placeholder="Paste tab-separated values, CSV text, or JSON records here..."></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+              <button id="btnPasteClipboardBox" class="btn-clean-secondary btn-sm">📋 Read Clipboard</button>
+              <button id="btnLoadPasted" class="btn-clean-primary btn-sm">Load Pasted Data</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- ==========================================
+           TAB 2: ANALYTICS (DYNAMIC DATA INTELLIGENCE)
+           ========================================== -->
+      <section id="tabAnalytics" class="tab-pane">
+        <!-- DYNAMIC SELECTION BAR (Core Principle: Select Anything -> Relevant Operations Appear) -->
+        <div class="dynamic-selection-bar">
+          <div class="dyn-sel-group">
+            <label class="dyn-sel-label">Selected Column(s):</label>
+            <select id="dynColumnSelect" class="form-select dyn-select">
+              <option value="__ALL__">Entire Dataset</option>
+            </select>
+          </div>
+
+          <div class="dyn-sel-group">
+            <label class="dyn-sel-label">Row Filter:</label>
+            <select id="dynRowFilter" class="form-select dyn-select">
+              <option value="all">All Rows</option>
+              <option value="missing">Rows with Missing Values</option>
+              <option value="duplicates">Duplicate Rows</option>
+              <option value="outliers">Outlier Rows</option>
+            </select>
+          </div>
+
+          <div class="dyn-sel-group">
+            <label class="dyn-sel-label">Second Column (for Bivariate/Group):</label>
+            <select id="dynSecondColumn" class="form-select dyn-select">
+              <option value="__NONE__">(None / Single Column)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- DYNAMIC OPERATIONS BOX (Updates in Real-Time Based on Selection) -->
+        <div id="dynamicOperationsBox" class="dynamic-ops-container">
+          <div class="dyn-ops-header">
+            <span class="dyn-ops-title" id="dynOpsTitle">💡 Relevant Operations for Selected Data</span>
+            <span id="dynOpsTypeBadge" class="type-pill type-numeric">Dataset</span>
+          </div>
+          <div id="dynamicOpsButtons" class="dynamic-ops-grid">
+            <!-- Dynamically populated buttons -->
+          </div>
+          <!-- Dynamic Results Container -->
+          <div id="dynamicOpsResult" class="dynamic-ops-result" style="display:none;"></div>
+        </div>
+
+        <!-- KPI Quad Grid & Quality Score -->
+        <div class="quality-grid-row" style="margin-top: 16px;">
+          <!-- Quality Score Card -->
+          <div class="score-card-mint">
+            <div class="score-circle-wrapper">
+              <svg class="score-ring-svg" viewBox="0 0 90 90">
+                <circle cx="45" cy="45" r="36" class="ring-bg"></circle>
+                <circle cx="45" cy="45" r="36" class="ring-fill" id="scoreCircleFill"></circle>
+                <circle cx="45" cy="9" r="4" class="ring-dot"></circle>
+              </svg>
+              <div class="score-center-display">
+                <span id="qualityScoreVal" class="score-val">--</span>
+                <span class="score-denom">/ 100</span>
+              </div>
+            </div>
+            <h4 class="score-card-title">Data Quality Score</h4>
+            <span id="qualityScoreLabel" class="score-card-status">Calculating...</span>
+          </div>
+
+          <!-- KPI Tiles -->
+          <div class="kpi-quad-grid">
+            <div class="kpi-tile kpi-blue">
+              <div class="kpi-icon-pill icon-blue">📄</div>
+              <div class="kpi-details">
+                <span id="kpiRows" class="kpi-metric-number">0</span>
+                <span class="kpi-metric-label">Rows</span>
+              </div>
+            </div>
+            <div class="kpi-tile kpi-purple">
+              <div class="kpi-icon-pill icon-purple">📊</div>
+              <div class="kpi-details">
+                <span id="kpiCols" class="kpi-metric-number">0</span>
+                <span class="kpi-metric-label">Columns</span>
+              </div>
+            </div>
+            <div class="kpi-tile kpi-amber">
+              <div class="kpi-icon-pill icon-amber">⚠️</div>
+              <div class="kpi-details">
+                <span id="kpiNulls" class="kpi-metric-number">0</span>
+                <span class="kpi-metric-label">Nulls / Missing</span>
+              </div>
+            </div>
+            <div class="kpi-tile kpi-rose">
+              <div class="kpi-icon-pill icon-rose">📑</div>
+              <div class="kpi-details">
+                <span id="kpiDuplicates" class="kpi-metric-number">0</span>
+                <span class="kpi-metric-label">Duplicate Rows</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== CLEANING TOOLSET (EXACT REPLICA OF IMAGE 2) ====== -->
+        <div class="cleaning-toolset-card" style="margin-top: 16px;">
+          <!-- Card Header -->
+          <div class="cleaning-header-row">
+            <div class="cleaning-title-wrap">
+              <span class="toolset-icon">🛠</span>
+              <h3 class="cleaning-title">Cleaning Toolset</h3>
+            </div>
+            <div class="toolset-header-actions">
+              <button id="btnMaskPII" class="btn-mask-pii" title="Mask PII & Anonymize Sensitive Data">
+                👤 Mask PII
+              </button>
+              <div class="history-controls">
+                <button id="btnUndo" class="btn-history" disabled title="Undo last change">↩ Undo</button>
+                <button id="btnRedo" class="btn-history" disabled title="Redo">↪ Redo</button>
+                <button id="btnReset" class="btn-history" title="Reset dataset to original">↺ Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Auto Clean Strip -->
+          <div class="quick-clean-strip" style="display: flex; gap: 8px; margin: 10px 0;">
+            <button id="btnAutoCleanQuick" class="btn-clean-primary btn-xs" style="flex: 1;">⚡ 1-Click Auto Clean</button>
+            <button id="btnTrimWhitespaceQuick" class="btn-clean-secondary btn-xs">✂ Trim Whitespace</button>
+          </div>
+
+          <!-- Accordion 1: Remove Columns / Rename -->
+          <div class="toolset-accordion-item" id="accRemoveRename">
+            <div class="toolset-accordion-header active" data-target="accContentRemoveRename">
+              <div class="header-left">
+                <span class="acc-icon-danger">⛔</span>
+                <span class="acc-title">Remove Columns / Rename</span>
+              </div>
+              <span class="acc-caret">▲</span>
+            </div>
+            <div class="toolset-accordion-content active" id="accContentRemoveRename">
+              <div class="form-group-custom">
+                <label for="cleanOpColumn">Select Column</label>
+                <select id="cleanOpColumn" class="custom-select"></select>
+              </div>
+              <div style="margin: 8px 0;">
+                <button id="btnDropColumn" class="btn-danger-outline">Drop Column</button>
+              </div>
+              <hr class="custom-divider">
+              <div class="form-group-custom">
+                <label for="cleanOpRenameVal">Rename Selected Column to:</label>
+                <input type="text" id="cleanOpRenameVal" class="custom-input" placeholder="New column name" autocomplete="off">
+              </div>
+              <button id="btnApplyRename" class="btn-accent-glow">Apply Rename</button>
+            </div>
+          </div>
+
+          <!-- Accordion 2: Handle Missing Values -->
+          <div class="toolset-accordion-item" id="accHandleMissing">
+            <div class="toolset-accordion-header" data-target="accContentHandleMissing">
+              <div class="header-left">
+                <span class="acc-icon-amber">💧</span>
+                <span class="acc-title">Handle Missing Values</span>
+              </div>
+              <span class="acc-caret">▼</span>
+            </div>
+            <div class="toolset-accordion-content" id="accContentHandleMissing">
+              <div class="form-group-custom">
+                <label for="cleanNullColumn">Select Column</label>
+                <select id="cleanNullColumn" class="custom-select"></select>
+              </div>
+              <div class="form-group-custom">
+                <label for="cleanNullMethod">Fill Method</label>
+                <select id="cleanNullMethod" class="custom-select">
+                  <option value="median" selected>Fill with Median (Numeric only)</option>
+                  <option value="mean">Fill with Mean (Numeric only)</option>
+                  <option value="mode">Fill with Mode</option>
+                  <option value="constant">Fill with Constant Value</option>
+                  <option value="drop">Drop Rows with Null in Column</option>
+                  <option value="ffill">Forward Fill (ffill)</option>
+                  <option value="bfill">Backward Fill (bfill)</option>
+                </select>
+              </div>
+              <div class="form-group-custom" id="groupCleanNullConstant" style="display: none;">
+                <label for="cleanNullConstant">Constant Value</label>
+                <input type="text" id="cleanNullConstant" class="custom-input" placeholder="Enter custom value" autocomplete="off">
+              </div>
+              <button id="btnQueueHandleNulls" class="btn-accent-glow btn-block">Queue Fix Missing Values</button>
+            </div>
+          </div>
+
+          <!-- Accordion 3: Data Types Casting -->
+          <div class="toolset-accordion-item" id="accDataTypes">
+            <div class="toolset-accordion-header" data-target="accContentDataTypes">
+              <div class="header-left">
+                <span class="acc-icon-orange">🧮</span>
+                <span class="acc-title">Data Types Casting</span>
+              </div>
+              <span class="acc-caret">▼</span>
+            </div>
+            <div class="toolset-accordion-content" id="accContentDataTypes">
+              <div class="form-group-custom">
+                <label for="cleanCastColumn">Select Column</label>
+                <select id="cleanCastColumn" class="custom-select"></select>
+              </div>
+              <div class="form-group-custom">
+                <label for="cleanCastType">Target Type</label>
+                <select id="cleanCastType" class="custom-select">
+                  <option value="Integer">Integer (int64)</option>
+                  <option value="Float">Float (float64)</option>
+                  <option value="Text">Text/String</option>
+                  <option value="Datetime">Datetime (Date/Time)</option>
+                </select>
+              </div>
+              <button id="btnQueueCastType" class="btn-accent-glow btn-block">Cast Data Type</button>
+            </div>
+          </div>
+
+          <!-- Accordion 4: Row Operations -->
+          <div class="toolset-accordion-item" id="accRowOperations">
+            <div class="toolset-accordion-header" data-target="accContentRowOperations">
+              <div class="header-left">
+                <span class="acc-icon-red">📑</span>
+                <span class="acc-title">Row Operations</span>
+              </div>
+              <span class="acc-caret">▼</span>
+            </div>
+            <div class="toolset-accordion-content" id="accContentRowOperations">
+              <button id="btnQueueRemoveDuplicates" class="btn-accent-glow btn-block" style="margin-bottom: 8px;">
+                📑 Remove Duplicate Rows
+              </button>
+              <button id="btnQueueDropAllNullRows" class="btn-danger-block">
+                🗑 Drop Rows with Any Nulls
+              </button>
+            </div>
+          </div>
+
+          <!-- Accordion 5: Create Measure (Calc Column) -->
+          <div class="toolset-accordion-item" id="accCreateMeasure">
+            <div class="toolset-accordion-header" data-target="accContentCreateMeasure">
+              <div class="header-left">
+                <span class="acc-icon-green">📐</span>
+                <span class="acc-title">Create Measure (Calc Column)</span>
+              </div>
+              <span class="acc-caret">▼</span>
+            </div>
+            <div class="toolset-accordion-content" id="accContentCreateMeasure">
+              <div class="form-group-custom">
+                <label for="measureName">New Column Name</label>
+                <input type="text" id="measureName" class="custom-input" placeholder="e.g. Gross_Profit" autocomplete="off">
+              </div>
+              <div class="form-group-custom">
+                <label for="measureLeftCol">Left Column</label>
+                <select id="measureLeftCol" class="custom-select"></select>
+              </div>
+              <div class="form-group-custom">
+                <label for="measureOperator">Operator</label>
+                <select id="measureOperator" class="custom-select">
+                  <option value="+">+ (Add)</option>
+                  <option value="-">- (Subtract)</option>
+                  <option value="*">* (Multiply)</option>
+                  <option value="/">/ (Divide)</option>
+                  <option value="%">% (Modulo)</option>
+                  <option value="CONCAT">CONCAT (Text Join)</option>
+                </select>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+                <input type="checkbox" id="measureUseConstant">
+                <label for="measureUseConstant" style="font-size: 11.5px; color: #cbd5e1; cursor: pointer;">Use Constant Value</label>
+              </div>
+              <div class="form-group-custom" id="measureRightColGroup">
+                <label for="measureRightCol">Right Column</label>
+                <select id="measureRightCol" class="custom-select"></select>
+              </div>
+              <div class="form-group-custom" id="measureRightConstantGroup" style="display: none;">
+                <label for="measureRightConstant">Constant Value</label>
+                <input type="text" id="measureRightConstant" class="custom-input" placeholder="e.g. 100 or USD" autocomplete="off">
+              </div>
+              <button id="btnCreateMeasure" class="btn-accent-glow btn-block">Queue Calculated Column</button>
+            </div>
+          </div>
+
+          <!-- Pending Operations Box (Exact Match to Image 2) -->
+          <div class="pending-ops-card">
+            <div class="pending-ops-header">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>📋</span>
+                <strong>Pending Operations</strong>
+              </div>
+              <span id="pendingOpsCountBadge" class="pending-count-pill">0</span>
+            </div>
+            <div id="pendingOpsList" class="pending-ops-body">
+              No pending changes. Select tools above to modify data.
+            </div>
+            <div class="pending-actions-row">
+              <button id="btnResetPending" class="btn-pending-reset">Reset</button>
+              <button id="btnApplyAllPending" class="btn-pending-apply">Apply All</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Cleaned Dataset Table (Real-time view inside Studio) -->
+        <div class="dataset-preview-section" id="analyticsPreviewWrap" style="margin-top: 16px; border: 1px solid #334155; border-radius: 10px; padding: 12px; background: #0b1220;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 14px;">📋</span>
+              <strong style="font-size: 13px; color: #f8fafc;">Live Cleaned Records Grid</strong>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="analyticsSearch" class="search-input" placeholder="Filter rows..." style="max-width: 140px;">
+              <span id="analyticsPageInfo" style="font-size: 11px; color: #94a3b8;">Showing 0 rows</span>
+            </div>
+          </div>
+          <div class="table-container" style="max-height: 220px; overflow-y: auto;">
+            <table class="data-table" id="analyticsTable">
+              <thead id="analyticsThead"><tr><th>No active dataset</th></tr></thead>
+              <tbody id="analyticsTbody"><tr><td style="text-align:center; padding: 16px; color:#64748b;">No dataset loaded.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Dynamic Visualization (Chart.js Native Renderer) -->
+        <div class="chart-section-card" style="margin-top: 16px;">
+          <div class="chart-controls-bar" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <select id="selChartType" class="form-select-sm">
+                  <option value="bar">Bar Chart</option>
+                  <option value="line">Line Chart</option>
+                  <option value="forecast">🔮 Time-Series Prediction / Forecast</option>
+                  <option value="area">Area Chart</option>
+                  <option value="pie">Pie Chart</option>
+                  <option value="donut">Doughnut Chart</option>
+                  <option value="scatter">Scatter Plot (Trendline)</option>
+                  <option value="histogram">Histogram</option>
+                  <option value="boxplot">Box Plot</option>
+                  <option value="heatmap">Correlation Heatmap</option>
+                </select>
+                <select id="selChartX" class="form-select-sm"><option value="">X Axis</option></select>
+                <select id="selChartY" class="form-select-sm"><option value="">Y Axis / Measure</option></select>
+                <select id="selChartAgg" class="form-select-sm">
+                  <option value="mean">Mean</option>
+                  <option value="sum">Sum</option>
+                  <option value="count">Count</option>
+                  <option value="median">Median</option>
+                  <option value="min">Min</option>
+                  <option value="max">Max</option>
+                </select>
+              </div>
+              <button id="btnAutoGenerateAllCharts" class="btn-clean-primary btn-xs" style="white-space: nowrap;">⚡ Auto-Generate All Charts</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+              <span style="font-size: 11px; font-weight: 700; color: #38bdf8;">Smart Recommendations:</span>
+              <div id="chartSuggestionPills" class="chart-suggestions-wrap" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            </div>
+          </div>
+          <div id="chartContainer" class="chart-canvas-wrapper" style="min-height: 250px; margin-top: 10px;">
+            <!-- Canvas or SVG generated by charts.js -->
+          </div>
+          <!-- Auto Generated All Charts Grid -->
+          <div id="allChartsGallery" class="all-charts-gallery" style="display:none; margin-top: 16px; border-top: 1px dashed #334155; padding-top: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4 style="margin: 0; color: #f8fafc; font-size: 13px;">📊 Multi-Visual Dashboard Gallery</h4>
+              <button id="btnCloseGallery" class="btn-clean-secondary btn-xs" style="font-size: 10px;">✕ Close Gallery</button>
+            </div>
+            <div id="allChartsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;"></div>
+          </div>
+        </div>
+
+        <!-- Issues & Smart Insights List -->
+        <div class="issues-card" style="margin-top: 16px;">
+          <div class="issues-card-header">
+            <h4>Detected Anomalies & Insights</h4>
+            <span id="problemStatusBadge" class="status-pill">Inspecting...</span>
+          </div>
+          <div id="problemList" class="problem-items-container"></div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 3: MACHINE LEARNING & PREDICTION
+           ========================================== -->
+      <section id="tabML" class="tab-pane">
+        <div class="ml-config-card">
+          <div class="ml-workflow-steps">
+            <!-- Step 1: Target Selection -->
+            <div class="ml-step-box">
+              <label class="form-label" style="font-weight: 600;">1. Select Target Column:</label>
+              <select id="selMLTargetCol" class="form-select">
+                <option value="">-- Choose Target --</option>
+              </select>
+              <div id="targetTypeDetectBadge" class="type-pill" style="margin-top:6px; display:inline-block;">Auto-detecting problem type...</div>
+            </div>
+
+            <!-- Step 2: Algorithm Selection -->
+            <div class="ml-step-box">
+              <label class="form-label" style="font-weight: 600;">2. Algorithm / Model:</label>
+              <select id="selMLModelType" class="form-select">
+                <option value="auto">🏆 AutoML (Best Algorithm Comparison)</option>
+                <option value="Random Forest">Random Forest</option>
+                <option value="XGBoost">XGBoost</option>
+                <option value="Gradient Boosting">Gradient Boosting</option>
+                <option value="Decision Tree">Decision Tree</option>
+                <option value="Linear / Logistic Regression">Linear / Logistic Regression</option>
+                <option value="KNN">K-Nearest Neighbors</option>
+                <option value="K-Means">K-Means Clustering</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Feature Selection -->
+          <div class="ml-features-container" style="margin-top: 12px;">
+            <label class="form-label" style="font-weight: 600;">3. Feature Variables (Inputs):</label>
+            <div id="mlFeatureCheckboxes" class="feature-checkboxes-grid">
+              <!-- Checkboxes dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button id="btnTrainMLModel" class="btn-clean-primary">🚀 Train Model via Python</button>
+            <button id="btnRunAutoML" class="btn-clean-secondary">⚡ Run AutoML Comparison</button>
+          </div>
+        </div>
+
+        <!-- ML Metrics & Evaluation Card -->
+        <div id="mlMetricsCard" class="ml-results-card" style="display:none; margin-top: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+            <h4 id="mlModelBadge" style="color: #0f172a; margin:0;">🏆 Evaluation Metrics</h4>
+            <span id="mlBackendIndicator" class="status-pill status-pill-success">Python Scikit-Learn</span>
+          </div>
+          <div id="mlMetricsGrid" class="metrics-grid"></div>
+
+          <!-- Feature Importance / SHAP Plot -->
+          <div id="mlFeatureImportanceWrap" style="margin-top: 16px;">
+            <strong style="font-size: 12px; color: #334155;">Feature Importance &amp; Impact (SHAP):</strong>
+            <div id="mlFeatureImportanceBars" style="margin-top: 8px;"></div>
+            <small style="color: #64748b; display: block; margin-top: 4px; font-style: italic;">
+              * Note: Feature contribution reflects predictive model correlation rather than causal influence.
+            </small>
+          </div>
+        </div>
+
+        <!-- Interactive What-If Simulation -->
+        <div id="mlSimulatorCard" class="whatif-card" style="display:none; margin-top: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>🔮 Interactive What-If Simulator</strong>
+            <button id="btnRunPrediction" class="btn-clean-primary btn-sm">Predict Outcome</button>
+          </div>
+          <p style="font-size: 11px; color: #64748b; margin-top: 2px;">Adjust input features below to simulate real-time model predictions:</p>
+          <div id="mlSimulatorInputs" class="whatif-inputs-grid" style="margin-top: 10px;"></div>
+          <div id="mlPredictionResult" class="whatif-prediction-banner" style="display:none; margin-top: 12px;"></div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 4: DOCUMENTS & PDFS
+           ========================================== -->
+      <section id="tabDocuments" class="tab-pane">
+        <div class="doc-header-card">
+          <h3 class="section-title">Document Intelligence &amp; PDF Analysis</h3>
+          <p class="section-subtitle">Extract structured sections, tables, key entities, and numbers from documents and study materials.</p>
+
+          <div class="doc-input-box" style="margin-top: 12px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <input type="file" id="inputDocFile" accept=".pdf, .txt, .docx, .md" style="display:none;">
+              <button id="btnUploadDoc" class="btn-clean-secondary btn-sm">📄 Upload Document / PDF</button>
+              <button id="btnPasteDocText" class="btn-clean-secondary btn-sm">📋 Paste Text</button>
+            </div>
+            <textarea id="docInputText" rows="5" class="doc-textarea" placeholder="Paste document content, research abstract, or lecture notes here..."></textarea>
+          </div>
+
+          <!-- Document Action Toolbar -->
+          <div class="doc-toolbar" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+            <button class="btn-doc-action" data-doc-action="summary">📋 Executive Summary</button>
+            <button class="btn-doc-action" data-doc-action="key_points">💡 Key Takeaways</button>
+            <button class="btn-doc-action" data-doc-action="definitions">📖 Definitions</button>
+            <button class="btn-doc-action" data-doc-action="formulas">📐 Formulas &amp; Metrics</button>
+            <button class="btn-doc-action" data-doc-action="explain_simply">👶 Explain Simply</button>
+          </div>
+        </div>
+
+        <!-- Document Analysis Output Display -->
+        <div id="docOutputCard" class="doc-output-card" style="display:none; margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong id="docOutputTitle">Analysis Results</strong>
+            <button id="btnCopyDocOutput" class="btn-clean-secondary btn-xs">Copy Text</button>
+          </div>
+          <div id="docOutputContent" class="doc-output-body"></div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 5: STUDY & RESEARCH PAPER MODE
+           ========================================== -->
+      <section id="tabStudy" class="tab-pane">
+        <!-- Mode Switcher (Study Mode vs Research Paper Mode) -->
+        <div class="study-mode-switcher">
+          <button id="btnModeStudy" class="btn-mode-tab active">🎓 Study &amp; Notes Mode</button>
+          <button id="btnModeResearch" class="btn-mode-tab">📑 Research Paper Mode</button>
+        </div>
+
+        <!-- STUDY SUB-VIEW -->
+        <div id="viewStudyMode" class="study-view active" style="margin-top: 14px;">
+          <p class="section-subtitle">Generate interactive study flashcards, formula cheat-sheets, and practice quizzes.</p>
+          <div class="study-actions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-top: 10px;">
+            <button class="btn-study-tool" data-study="flashcards">🗂 Generate Flashcards</button>
+            <button class="btn-study-tool" data-study="quiz">❓ Generate Practice Quiz</button>
+            <button class="btn-study-tool" data-study="questions">📝 Practice Questions</button>
+            <button class="btn-study-tool" data-study="detailed">📚 Comprehensive Study Notes</button>
+          </div>
+        </div>
+
+        <!-- RESEARCH PAPER SUB-VIEW -->
+        <div id="viewResearchMode" class="study-view" style="display:none; margin-top: 14px;">
+          <p class="section-subtitle">Extract verifiable components from scientific papers without hallucination.</p>
+          <div class="research-actions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-top: 10px;">
+            <button class="btn-research-tool" data-paper="all">📑 Full Paper Breakdown</button>
+            <button class="btn-research-tool" data-paper="methodology">🔬 Extract Methodology</button>
+            <button class="btn-research-tool" data-paper="results">📊 Extract Results &amp; Metrics</button>
+            <button class="btn-research-tool" data-paper="dataset">📦 Extract Dataset Details</button>
+          </div>
+        </div>
+
+        <!-- Study Output Container -->
+        <div id="studyOutputCard" class="study-output-card" style="display:none; margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong id="studyOutputTitle">Study Guide</strong>
+            <button id="btnCopyStudy" class="btn-clean-secondary btn-xs">Copy</button>
+          </div>
+          <div id="studyOutputBody" class="study-output-body"></div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 6: AI COPILOT (CHAT)
+           ========================================== -->
+      <section id="tabCopilot" class="tab-pane">
+        <div class="chat-container">
+          <div class="chat-privacy-banner">
+            <span class="icon">🔒</span>
+            <span>Privacy Guard: Gemini API key stored locally in browser sandbox only. Never uploaded to servers.</span>
+          </div>
+
+          <div id="chatMessages" class="chat-messages-area">
+            <div class="chat-bubble ai">
+              Hello! I am your <strong>AetherBI Intelligence Copilot</strong>. Ask me anything about your extracted webpage tables, data distributions, cleaning advice, or machine learning results!
+            </div>
+          </div>
+
+          <div class="chat-prompt-chips">
+            <button class="chip" data-prompt="What are the biggest data quality problems in this dataset?">Analyze quality issues</button>
+            <button class="chip" data-prompt="What are the statistical anomalies or outliers?">Find outliers</button>
+            <button class="chip" data-prompt="Suggest the best Chart.js visualization for this table.">Recommend chart</button>
+            <button class="chip" data-prompt="Explain the correlations and patterns in this data.">Explain patterns</button>
+          </div>
+
+          <div class="chat-input-bar">
+            <input type="text" id="chatInput" placeholder="Ask a question about the dataset..." autocomplete="off">
+            <button id="btnSendChat" class="btn-send">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 7: SETTINGS & BACKEND CONFIG
+           ========================================== -->
+      <section id="tabSettings" class="tab-pane">
+        <div class="settings-card">
+          <h3 class="section-title">Extension Settings &amp; AI Configuration</h3>
+
+          <!-- Gemini API Key Configuration -->
+          <div class="settings-section" style="margin-top: 14px;">
+            <label class="form-label" style="font-weight: 600;">Gemini API Key (User-Provided):</label>
+            <div style="display:flex; gap: 8px;">
+              <input type="password" id="inputGeminiApiKey" class="form-control" placeholder="AIzaSy..." style="flex:1;">
+              <button id="btnToggleApiKey" class="btn-clean-secondary btn-sm" title="Show / Hide">👁</button>
+              <button id="btnTestApiKey" class="btn-clean-secondary btn-sm">Test</button>
+              <button id="btnSaveApiKey" class="btn-clean-primary btn-sm">Save</button>
+              <button id="btnClearApiKey" class="btn-clean-secondary btn-sm" style="color:#ef4444;">Delete</button>
+            </div>
+            <small class="form-hint" style="display:block; margin-top: 4px;">
+              Your Gemini key is stored <strong>strictly on your local machine</strong> in <code>chrome.storage.local</code>. It is never transmitted to Render or local Flask.
+            </small>
+          </div>
+
+          <!-- Model Choice -->
+          <div class="settings-section" style="margin-top: 14px;">
+            <label class="form-label" style="font-weight: 600;">Gemini Model:</label>
+            <select id="selGeminiModel" class="form-select">
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast, Recommended)</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash (Next-Gen)</option>
+              <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Reasoning)</option>
+            </select>
+          </div>
+
+          <!-- Backend Endpoints Configuration -->
+          <div class="settings-section" style="margin-top: 16px;">
+            <label class="form-label" style="font-weight: 600;">Remote Render Backend URL:</label>
+            <input type="text" id="inputRenderUrl" class="form-control" value="https://aetherbi-data-visualizer.onrender.com" placeholder="https://...">
+          </div>
+
+          <div class="settings-section" style="margin-top: 12px;">
+            <label class="form-label" style="font-weight: 600;">Local Flask ML URL:</label>
+            <input type="text" id="inputLocalUrl" class="form-control" value="http://127.0.0.1:5000" placeholder="http://127.0.0.1:5000">
+          </div>
+
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <button id="btnSaveBackendUrls" class="btn-clean-primary btn-sm">Save URLs</button>
+            <button id="btnTestBackends" class="btn-clean-secondary btn-sm">🔄 Recheck Connections</button>
+          </div>
+
+          <!-- Capability Status Report -->
+          <div class="settings-status-box" style="margin-top: 18px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <strong style="color: #334155; font-size: 12px;">Active Capability Matrix:</strong>
+            <ul style="list-style: none; margin-top: 8px; font-size: 12px; line-height: 1.8;">
+              <li id="statusBrowserItem">🟢 <strong>Browser Engine:</strong> Active (Client-side Profiling, SVG/Canvas Charts, In-Browser Cleaning)</li>
+              <li id="statusRenderItem">⚪ <strong>Render Backend:</strong> Checking connection...</li>
+              <li id="statusFlaskItem">⚪ <strong>Local Python ML:</strong> Checking (http://127.0.0.1:5000)...</li>
+              <li id="statusGeminiItem">⚪ <strong>Gemini AI:</strong> Checking API key...</li>
+            </ul>
+          </div>
+
+          <!-- Clear Data -->
+          <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
+            <button id="btnClearAllStorage" class="btn-clean-secondary btn-sm" style="color: #dc2626; border-color: #fca5a5;">
+              ⚠️ Clear All Stored Settings &amp; Datasets
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" class="toast"></div>
+
+  <!-- Scripts -->
+  <script src="../utils/compat.js"></script>
+  <script src="../utils/xlsx.mini.min.js"></script>
+  <script src="../ai/domain.js"></script>
+  <script src="../cleaning/validators.js"></script>
+  <script src="../cleaning/profiler.js"></script>
+  <script src="../cleaning/cleaner.js"></script>
+  <script src="../ml/engine.js"></script>
+  <script src="../visualization/charts.js"></script>
+  <script src="../ai/gemini.js"></script>
+  <script src="../ai/copilot.js"></script>
+  <script src="../utils/export.js"></script>
+  <script src="../utils/report.js"></script>
+  <script src="../utils/api_client.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Webpage - AI Data Cleaner Extension Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    h1 { color: #0f172a; margin-bottom: 8px; }
+    p.subtitle { color: #64748b; margin-bottom: 24px; line-height: 1.5; }
+    .instructions {
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 30px;
+    }
+    .instructions h3 { margin-top: 0; color: #1d4ed8; }
+    .instructions ol { margin-left: 20px; line-height: 1.6; }
+    .table-section {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    h2 { margin-top: 0; font-size: 18px; color: #334155; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #475569;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    .tag-issue {
+      background: #fee2e2;
+      color: #991b1b;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧪 AI Data Cleaner - Test Playground</h1>
+  <p class="subtitle">This page contains sample datasets with common real-world data problems (nulls, duplicates, inconsistent casing, currency formatting). Click the extension icon in your Chrome toolbar to test table detection, profiling, and 1-click cleaning!</p>
+
+  <div class="instructions">
+    <h3 style="margin-top:0;">🚀 How to Load & Test across Browsers:</h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 12px;">
+      <div style="background:#ffffff; padding:12px 14px; border-radius:6px; border:1px solid #bfdbfe;">
+        <strong style="color:#0284c7;">🌐 Microsoft Edge:</strong>
+        <ol style="margin-left:18px; margin-top:6px; padding-left:0; font-size:13px; line-height:1.5;">
+          <li>Navigate to <code>edge://extensions/</code></li>
+          <li>Turn on <strong>"Developer mode"</strong> in the left sidebar.</li>
+          <li>Click <strong>"Load unpacked"</strong> and select the <code>chrome_extension</code> folder.</li>
+        </ol>
+      </div>
+
+      <div style="background:#ffffff; padding:12px 14px; border-radius:6px; border:1px solid #bfdbfe;">
+        <strong style="color:#ea580c;">🦊 Mozilla Firefox:</strong>
+        <ol style="margin-left:18px; margin-top:6px; padding-left:0; font-size:13px; line-height:1.5;">
+          <li>Navigate to <code>about:debugging#/runtime/this-firefox</code></li>
+          <li>Click <strong>"Load Temporary Add-on..."</strong></li>
+          <li>Select the <code>manifest.json</code> file inside <code>chrome_extension</code>.</li>
+        </ol>
+      </div>
+
+      <div style="background:#ffffff; padding:12px 14px; border-radius:6px; border:1px solid #bfdbfe;">
+        <strong style="color:#16a34a;">🟢 Google Chrome / Brave:</strong>
+        <ol style="margin-left:18px; margin-top:6px; padding-left:0; font-size:13px; line-height:1.5;">
+          <li>Navigate to <code>chrome://extensions/</code></li>
+          <li>Enable <strong>"Developer mode"</strong> (top-right toggle).</li>
+          <li>Click <strong>"Load unpacked"</strong> and choose the <code>chrome_extension</code> folder.</li>
+        </ol>
+      </div>
+    </div>
+    <p style="margin: 10px 0 0 0; font-size: 12px; color: #1e40af;">
+      <strong>🔒 Privacy Architecture:</strong> AI API keys and all data cleaning operate strictly inside your local browser. No keys or dataset records are uploaded to remote servers.
+    </p>
+  </div>
+
+  <!-- Table 1: Employee Records (Directly from User Prompt Specification) -->
+  <div class="table-section">
+    <h2>1. Employee & Department Table (Spec Example)</h2>
+    <p style="font-size: 13px; color: #64748b;">Contains: 1 null age, 1 null salary, inconsistent departments ("hr", "HR", "Human Resources"), and 1 duplicate row.</p>
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Salary</th>
+          <th>Department</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Rahul</td>
+          <td>23</td>
+          <td>$50,000</td>
+          <td>hr</td>
+        </tr>
+        <tr>
+          <td>Amit</td>
+          <td>NULL</td>
+          <td>$55,000</td>
+          <td>HR</td>
+        </tr>
+        <tr>
+          <td>Priya</td>
+          <td>25</td>
+          <td></td>
+          <td>Human Resources</td>
+        </tr>
+        <tr>
+          <td>Rahul</td>
+          <td>23</td>
+          <td>$50,000</td>
+          <td>hr</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table 2: Car Sales Dataset -->
+  <div class="table-section">
+    <h2>2. Automobile Sales Dataset</h2>
+    <p style="font-size: 13px; color: #64748b;">Contains: numbers with currency signs, dates, unit counts, mixed casing, and null customer scores.</p>
+    <table id="carSalesTable">
+      <thead>
+        <tr>
+          <th>Brand</th>
+          <th>Model</th>
+          <th>Price</th>
+          <th>Units Sold</th>
+          <th>Customer Rating</th>
+          <th>Sale Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Toyota</td>
+          <td>Corolla</td>
+          <td>$22,500</td>
+          <td>125</td>
+          <td>4.8</td>
+          <td>2023-05-12</td>
+        </tr>
+        <tr>
+          <td>Honda</td>
+          <td>Civic</td>
+          <td>$24,000</td>
+          <td>98</td>
+          <td>4.6</td>
+          <td>2023-05-14</td>
+        </tr>
+        <tr>
+          <td>Ford</td>
+          <td>F-150</td>
+          <td>$38,000</td>
+          <td>140</td>
+          <td></td>
+          <td>2023-05-18</td>
+        </tr>
+        <tr>
+          <td>Tesla</td>
+          <td>Model 3</td>
+          <td>$41,500</td>
+          <td>110</td>
+          <td>4.9</td>
+          <td>2023-05-20</td>
+        </tr>
+        <tr>
+          <td>toyota</td>
+          <td>Camry</td>
+          <td>$26,000</td>
+          <td>85</td>
+          <td>4.5</td>
+          <td>2023-05-22</td>
+        </tr>
+        <tr>
+          <td>BMW</td>
+          <td>3 Series</td>
+          <td>$44,000</td>
+          <td>42</td>
+          <td>4.7</td>
+          <td>2023-05-25</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table 3: Customer ML & Diagnostic Dataset -->
+  <div class="table-section">
+    <h2>3. Customer Segmentation &amp; Churn Dataset (In-Browser ML Playground)</h2>
+    <p style="font-size: 13px; color: #64748b;">Perfect for testing in-browser ML algorithms: Linear Regression (predict Annual Income), Classification (predict Churned Yes/No), K-Means Clustering, and Correlation Heatmaps.</p>
+    <table id="customerMLTable">
+      <thead>
+        <tr>
+          <th>CustomerID</th>
+          <th>Annual_Income</th>
+          <th>Spending_Score</th>
+          <th>Tenure_Months</th>
+          <th>Transactions</th>
+          <th>Churned</th>
+          <th>Region</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>C101</td>
+          <td>$45,000</td>
+          <td>39</td>
+          <td>12</td>
+          <td>14</td>
+          <td>No</td>
+          <td>North</td>
+        </tr>
+        <tr>
+          <td>C102</td>
+          <td>$52,000</td>
+          <td>81</td>
+          <td>24</td>
+          <td>32</td>
+          <td>No</td>
+          <td>North</td>
+        </tr>
+        <tr>
+          <td>C103</td>
+          <td>$38,000</td>
+          <td>15</td>
+          <td>6</td>
+          <td>8</td>
+          <td>Yes</td>
+          <td>South</td>
+        </tr>
+        <tr>
+          <td>C104</td>
+          <td>$68,000</td>
+          <td>77</td>
+          <td>36</td>
+          <td>45</td>
+          <td>No</td>
+          <td>East</td>
+        </tr>
+        <tr>
+          <td>C105</td>
+          <td>$85,000</td>
+          <td>40</td>
+          <td>18</td>
+          <td>22</td>
+          <td>No</td>
+          <td>West</td>
+        </tr>
+        <tr>
+          <td>C106</td>
+          <td>$92,000</td>
+          <td>76</td>
+          <td>48</td>
+          <td>56</td>
+          <td>No</td>
+          <td>West</td>
+        </tr>
+        <tr>
+          <td>C107</td>
+          <td>$29,000</td>
+          <td>12</td>
+          <td>4</td>
+          <td>5</td>
+          <td>Yes</td>
+          <td>South</td>
+        </tr>
+        <tr>
+          <td>C108</td>
+          <td>$61,000</td>
+          <td>55</td>
+          <td>20</td>
+          <td>28</td>
+          <td>No</td>
+          <td>East</td>
+        </tr>
+        <tr>
+          <td>C109</td>
+          <td>$34,000</td>
+          <td>22</td>
+          <td>8</td>
+          <td>9</td>
+          <td>Yes</td>
+          <td>North</td>
+        </tr>
+        <tr>
+          <td>C110</td>
+          <td>$74,000</td>
+          <td>68</td>
+          <td>30</td>
+          <td>41</td>
+          <td>No</td>
+          <td>South</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
