@@ -13,8 +13,10 @@ serviceAccountKey.json
 users.db
 show_db.py
 
-# Datasets (user data)
-datasets/
+# Datasets (user data ignored, curated samples included)
+datasets/*
+!datasets/sales_data.csv
+!datasets/student_scores.xlsx
 
 # IDE & Agent scratch files
 .gemini/
