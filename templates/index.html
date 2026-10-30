@@ -8,16 +8,18 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom Style -->
-    <link rel="stylesheet" href="/static/css/style.css?v=2.1.6">
+    <link rel="stylesheet" href="/static/css/style.css?v=3.0.0">
     <link rel="stylesheet" href="/static/css/predict.css?v=1.0">
 </head>
 <body>
+    <!-- Ambient Dynamic Glow Background Spheres & Mesh -->
+    <div class="bg-ambient-mesh"></div>
     <!-- Ambient Dynamic Glow Background Spheres -->
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
@@ -38,168 +40,465 @@
     </div>
 
     <!-- ================= LANDING / AUTH VIEW ================= -->
-    <div id="auth-view" class="auth-container">
-        <!-- Floating Theme Toggle for Landing -->
-        <button type="button" class="landing-theme-toggle-floating" onclick="toggleQuickDarkLight()" title="Toggle Dark/Light Mode">
-            <i class="fa-solid fa-moon" id="landing-theme-icon"></i>
-            <span id="landing-theme-label">Dark Mode</span>
-        </button>
+    <div id="auth-view" class="landing-page-wrapper">
+        
+        <!-- Sticky Top Website Navbar -->
+        <header class="landing-top-navbar">
+            <div class="landing-nav-container">
+                <div class="navbar-brand" onclick="window.scrollTo({top:0, behavior:'smooth'})" style="cursor:pointer;" title="AI Visualizer Home">
+                    <div class="brand-badge-icon small">
+                        <i class="fa-solid fa-chart-line logo-icon"></i>
+                    </div>
+                    <h2>AI <span>Visualizer</span></h2>
+                    <span class="brand-tag">v3.0 SaaS</span>
+                </div>
+                
+                <nav class="landing-nav-links">
+                    <a href="#hero-section" class="landing-nav-link"><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> Overview</a>
+                    <a href="#showcase-section" class="landing-nav-link"><i class="fa-solid fa-desktop text-secondary"></i> Live Showcase</a>
+                    <a href="#features-section" class="landing-nav-link"><i class="fa-solid fa-cubes-stacked text-accent"></i> Capabilities</a>
+                    <a href="#sample-datasets-section" class="landing-nav-link"><i class="fa-solid fa-database text-success"></i> Samples</a>
+                </nav>
 
-        <!-- Landing Hero Showcase -->
-        <div class="landing-hero-section">
-            <div class="landing-badge">
-                <span class="pulse-dot"></span>
-                <i class="fa-solid fa-sparkles"></i> Next-Gen Data Intelligence SaaS Platform
-            </div>
-            <h1 class="landing-hero-title">
-                Turn Raw Data into <span class="gradient-text">Interactive Insights</span> & Visual Reports
-            </h1>
-            <p class="landing-hero-desc">
-                AI Visualizer helps data teams upload, clean, analyze, and visualize complex datasets in seconds with AI copilot assistance, predictive analytics, and publication-ready executive dashboards.
-            </p>
-
-            <!-- Live Metrics Strip -->
-            <div class="hero-metrics-strip">
-                <div class="metric-pill">
-                    <i class="fa-solid fa-bolt text-primary"></i>
-                    <span><strong>0.2s</strong> In-Memory ETL</span>
-                </div>
-                <div class="metric-pill">
-                    <i class="fa-solid fa-chart-pie text-secondary"></i>
-                    <span><strong>18+</strong> Chart Archetypes</span>
-                </div>
-                <div class="metric-pill">
-                    <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
-                    <span><strong>AI-Powered</strong> Copilot</span>
-                </div>
-                <div class="metric-pill">
-                    <i class="fa-solid fa-shield-halved text-success"></i>
-                    <span><strong>100%</strong> Local Privacy</span>
+                <div class="landing-nav-actions">
+                    <button type="button" class="btn-landing-theme-toggle" onclick="toggleQuickDarkLight()" title="Toggle Dark/Light Mode">
+                        <i class="fa-solid fa-moon" id="landing-theme-icon"></i>
+                        <span id="landing-theme-label">Dark Mode</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="quickDemoLogin()" title="1-Click Instant Demo">
+                        <i class="fa-solid fa-bolt text-primary"></i> Instant Demo
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm btn-glow" onclick="document.getElementById('login-username').focus(); document.getElementById('auth-card-section').scrollIntoView({behavior:'smooth'});">
+                        Sign In <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
+        </header>
+
+        <!-- Hero Section with Dual Columns (Showcase + Auth Card) -->
+        <div class="auth-container" id="hero-section">
             
-            <div class="landing-features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-wand-magic-sparkles feature-icon"></i>
+            <!-- Left Hero Showcase Column -->
+            <div class="landing-hero-section">
+                <div class="landing-badge">
+                    <span class="pulse-dot"></span>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Next-Gen In-Memory Data Intelligence & BI Studio
+                </div>
+                <h1 class="landing-hero-title">
+                    Turn Raw Data into <span class="gradient-text">Interactive Insights</span> & Executive Reports
+                </h1>
+                <p class="landing-hero-desc">
+                    AI Visualizer empowers data teams to upload, clean, analyze, and visualize complex datasets in seconds with AI copilot assistance, predictive statistical modeling, 32+ PowerBI-grade chart archetypes, and publication-ready executive dashboards.
+                </p>
+
+                <!-- Live Metrics Strip -->
+                <div class="hero-metrics-strip">
+                    <div class="metric-pill">
+                        <i class="fa-solid fa-bolt text-primary"></i>
+                        <span><strong>0.12s</strong> In-Memory ETL</span>
                     </div>
-                    <div>
-                        <h4>Natural Language ETL</h4>
-                        <p>Clean missing data, trim whitespace, and cast schema types using plain English prompts.</p>
+                    <div class="metric-pill">
+                        <i class="fa-solid fa-chart-pie text-secondary"></i>
+                        <span><strong>32+</strong> Visual Archetypes</span>
+                    </div>
+                    <div class="metric-pill">
+                        <i class="fa-solid fa-wand-magic-sparkles text-accent"></i>
+                        <span><strong>AI-Powered</strong> Copilot</span>
+                    </div>
+                    <div class="metric-pill">
+                        <i class="fa-solid fa-shield-halved text-success"></i>
+                        <span><strong>100%</strong> Local Privacy</span>
+                    </div>
+                    <div class="metric-pill">
+                        <i class="fa-solid fa-microchip text-primary"></i>
+                        <span><strong>Predictive ML</strong> Engine</span>
                     </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-brain feature-icon"></i>
-                    </div>
-                    <div>
-                        <h4>Predictive Analytics</h4>
-                        <p>1-Click IQR anomaly detection, Pearson correlation heatmaps, and linear regression forecasting.</p>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-chart-column feature-icon"></i>
-                    </div>
-                    <div>
-                        <h4>AI Visualizer Visuals</h4>
-                        <p>Over 32 visual chart styles with rich color palettes, data labels & high-res vector PDF/PNG export.</p>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-bolt feature-icon"></i>
-                    </div>
-                    <div>
-                        <h4>Instant Command Palette</h4>
-                        <p>Supercharge your workflow with instant <kbd>Ctrl+K</kbd> search, shortcuts, and quick actions.</p>
-                    </div>
+
+                <div class="landing-hero-actions">
+                    <button type="button" class="btn btn-primary btn-lg btn-glow" onclick="quickDemoLogin()">
+                        <i class="fa-solid fa-rocket"></i> Launch Interactive Demo (1-Click)
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-lg" onclick="document.getElementById('login-username').focus(); document.getElementById('auth-card-section').scrollIntoView({behavior:'smooth'});">
+                        <i class="fa-solid fa-user-lock"></i> Sign In to Account
+                    </button>
+                    <a href="#showcase-section" class="btn-ghost-link">
+                        <i class="fa-solid fa-arrow-down"></i> Explore Live Showcase
+                    </a>
                 </div>
             </div>
 
-            <div class="landing-hero-actions">
-                <button type="button" class="btn btn-primary btn-lg btn-glow" onclick="quickDemoLogin()">
-                    <i class="fa-solid fa-rocket"></i> Launch Interactive Demo
-                </button>
-                <button type="button" class="btn btn-secondary btn-lg" onclick="document.getElementById('login-username').focus()">
-                    <i class="fa-solid fa-user-lock"></i> Sign In to Account
-                </button>
+            <!-- Right Auth Form Card -->
+            <div class="auth-card" id="auth-card-section">
+                <div class="auth-card-glow"></div>
+                <div class="auth-logo">
+                    <div class="brand-badge-icon">
+                        <i class="fa-solid fa-chart-line logo-icon"></i>
+                    </div>
+                    <h1>AI <span>Visualizer</span></h1>
+                </div>
+                <p class="auth-subtitle">Enterprise Dataset Intelligence & Visual Reports</p>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab-btn active" id="tab-btn-login" onclick="switchAuthTab('login')">Sign In</button>
+                    <button class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')">Register</button>
+                    <div class="auth-tab-slider"></div>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form" onsubmit="handleLogin(event); return false;">
+                    <div class="input-group">
+                        <label for="login-username"><i class="fa-regular fa-user"></i> Username or Email</label>
+                        <div class="input-field-wrapper">
+                            <input type="text" id="login-username" placeholder="Enter your username or email" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
+                        <div class="input-field-wrapper has-toggle">
+                            <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
+                            <button type="button" class="btn-password-toggle" onclick="togglePasswordInputVisibility('login-password', this)" title="Toggle password visibility">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block btn-glow">
+                        <span>Sign In to Studio</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event); return false;">
+                    <div class="input-group">
+                        <label for="reg-username"><i class="fa-regular fa-user"></i> Username</label>
+                        <div class="input-field-wrapper">
+                            <input type="text" id="reg-username" placeholder="Choose a username" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-email"><i class="fa-regular fa-envelope"></i> Email Address</label>
+                        <div class="input-field-wrapper">
+                            <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-password"><i class="fa-solid fa-lock"></i> Password</label>
+                        <div class="input-field-wrapper has-toggle">
+                            <input type="password" id="reg-password" placeholder="Create a strong password" required autocomplete="new-password">
+                            <button type="button" class="btn-password-toggle" onclick="togglePasswordInputVisibility('reg-password', this)" title="Toggle password visibility">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block btn-glow">
+                        <span>Create Free Account</span> <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                </form>
+
+                <div class="auth-quick-demo-box">
+                    <button type="button" class="btn btn-secondary btn-block" onclick="quickDemoLogin()">
+                        <i class="fa-solid fa-bolt text-primary"></i> <span>Instant Demo Login (1-Click)</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Auth Form Card -->
-        <div class="auth-card">
-            <div class="auth-card-glow"></div>
-            <div class="auth-logo">
-                <div class="brand-badge-icon">
-                    <i class="fa-solid fa-chart-line logo-icon"></i>
+        <!-- ================= INTERACTIVE PRODUCT SHOWCASE ================= -->
+        <section class="landing-showcase-section" id="showcase-section">
+            <div class="showcase-card">
+                <div class="showcase-header">
+                    <div class="showcase-title-group">
+                        <div class="showcase-traffic-dots">
+                            <span class="traffic-dot traffic-red"></span>
+                            <span class="traffic-dot traffic-yellow"></span>
+                            <span class="traffic-dot traffic-green"></span>
+                        </div>
+                        <span class="showcase-header-title"><i class="fa-solid fa-chart-line text-primary"></i> Live Studio Preview — Executive Revenue & Anomaly Intelligence</span>
+                    </div>
+                    <div class="showcase-tabs">
+                        <span class="showcase-tab active"><i class="fa-solid fa-chart-line text-primary"></i> Overview</span>
+                        <span class="showcase-tab"><i class="fa-solid fa-wand-magic-sparkles text-secondary"></i> AI Cleaner</span>
+                        <span class="showcase-tab"><i class="fa-solid fa-brain text-accent"></i> Forecast</span>
+                        <span class="showcase-tab"><i class="fa-solid fa-table text-success"></i> Data Grid</span>
+                    </div>
                 </div>
-                <h1>AI <span>Visualizer</span></h1>
+
+                <!-- 4 Live KPI Cards -->
+                <div class="showcase-kpi-grid">
+                    <div class="showcase-kpi-item">
+                        <div class="showcase-kpi-info">
+                            <span class="kpi-label"><i class="fa-solid fa-dollar-sign text-success"></i> Total Revenue</span>
+                            <div class="kpi-number">$1,482,900</div>
+                        </div>
+                        <span class="showcase-kpi-badge badge-green">↑ 18.4% YoY</span>
+                    </div>
+                    <div class="showcase-kpi-item">
+                        <div class="showcase-kpi-info">
+                            <span class="kpi-label"><i class="fa-solid fa-database text-primary"></i> Processed Records</span>
+                            <div class="kpi-number">250,000</div>
+                        </div>
+                        <span class="showcase-kpi-badge badge-blue">0.12s ETL</span>
+                    </div>
+                    <div class="showcase-kpi-item">
+                        <div class="showcase-kpi-info">
+                            <span class="kpi-label"><i class="fa-solid fa-shield-check text-purple"></i> Data Quality Score</span>
+                            <div class="kpi-number">100% Clean</div>
+                        </div>
+                        <span class="showcase-kpi-badge badge-purple">0 Nulls</span>
+                    </div>
+                    <div class="showcase-kpi-item">
+                        <div class="showcase-kpi-info">
+                            <span class="kpi-label"><i class="fa-solid fa-triangle-exclamation text-amber"></i> Outlier Scanner</span>
+                            <div class="kpi-number">0 Anomalies</div>
+                        </div>
+                        <span class="showcase-kpi-badge badge-amber">IQR Validated</span>
+                    </div>
+                </div>
+
+                <!-- Graphic Visuals Split Mockup -->
+                <div class="showcase-visuals-grid">
+                    <div class="showcase-panel">
+                        <div class="showcase-panel-header">
+                            <span class="showcase-panel-title"><i class="fa-solid fa-chart-column text-primary"></i> Monthly Revenue & Profit Velocity</span>
+                            <span class="brand-tag">In-Memory Visual</span>
+                        </div>
+                        <div class="mockup-chart-bars">
+                            <div class="mockup-bar-col">
+                                <div class="mockup-bar" style="height: 55%;"></div>
+                                <span class="mockup-bar-label">Jan</span>
+                            </div>
+                            <div class="mockup-bar-col">
+                                <div class="mockup-bar" style="height: 70%;"></div>
+                                <span class="mockup-bar-label">Feb</span>
+                            </div>
+                            <div class="mockup-bar-col">
+                                <div class="mockup-bar alt" style="height: 85%;"></div>
+                                <span class="mockup-bar-label">Mar</span>
+                            </div>
+                            <div class="mockup-bar-col">
+                                <div class="mockup-bar alt" style="height: 65%;"></div>
+                                <span class="mockup-bar-label">Apr</span>
+                            </div>
+                            <div class="mockup-bar-col">
+                                <div class="mockup-bar accent" style="height: 95%;"></div>
+                                <span class="mockup-bar-label">May</span>
+                            </div>
+                            <div class="mockup-bar-col">
+                                <div class="mockup-bar accent" style="height: 100%;"></div>
+                                <span class="mockup-bar-label">Jun</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="showcase-panel">
+                        <div class="showcase-panel-header">
+                            <span class="showcase-panel-title"><i class="fa-solid fa-wand-magic-sparkles text-accent"></i> AI Copilot Narrative</span>
+                            <span class="pulse-dot"></span>
+                        </div>
+                        <div class="mockup-ai-box">
+                            <div class="mockup-ai-message">
+                                <span class="mockup-ai-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Automated Summary</span>
+                                <p>Revenue has surged by <strong>+18.4%</strong> with highest margin concentration in Western Region. Machine learning regression models predict sustained growth across Q3.</p>
+                                <div class="mockup-ai-list">
+                                    <span class="mockup-ai-list-item"><i class="fa-solid fa-circle-check text-success"></i> 0 missing values detected in dataset</span>
+                                    <span class="mockup-ai-list-item"><i class="fa-solid fa-circle-check text-success"></i> Pearson correlation r = 0.88 (Revenue vs Units)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p class="auth-subtitle">Transform raw datasets into stunning visual reports</p>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab-btn active" id="tab-btn-login" onclick="switchAuthTab('login')">Sign In</button>
-                <button class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')">Register</button>
-                <div class="auth-tab-slider"></div>
+        </section>
+
+        <!-- ================= BENTO PLATFORM CAPABILITIES ================= -->
+        <section class="bento-section" id="features-section">
+            <div class="bento-section-header">
+                <span class="bento-eyebrow">Enterprise Architecture</span>
+                <h2 class="bento-title">Everything You Need for Data Intelligence</h2>
+                <p class="bento-subtitle">From automated natural language data cleaning to 32+ PowerBI-grade charts and executive presentation exports — all running in-memory with zero cloud leakage.</p>
             </div>
 
-            <!-- Login Form -->
-            <form id="login-form" class="auth-form" onsubmit="handleLogin(event); return false;">
-                <div class="input-group">
-                    <label for="login-username"><i class="fa-regular fa-user"></i> Username or Email</label>
-                    <div class="input-field-wrapper">
-                        <input type="text" id="login-username" placeholder="Enter your username or email" required autocomplete="username">
+            <div class="bento-grid">
+                <!-- Bento Card 1: Natural Language AI ETL -->
+                <div class="bento-card span-2">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <h3 class="bento-card-title">Conversational Natural Language ETL</h3>
+                        <p class="bento-card-desc">Type data transformations in plain English: "Fill missing sales with median", "Drop duplicate customer records", or "Mask sensitive PII". Watch your dataset clean up instantly in RAM.</p>
+                    </div>
+                    <div class="bento-interactive-pill-row">
+                        <span class="bento-pill"><i class="fa-solid fa-fill-drip text-primary"></i> Fill Nulls (Median/Mode)</span>
+                        <span class="bento-pill"><i class="fa-solid fa-clone text-secondary"></i> Remove Duplicates</span>
+                        <span class="bento-pill"><i class="fa-solid fa-user-shield text-success"></i> Anonymize PII</span>
+                        <span class="bento-pill"><i class="fa-solid fa-square-root-variable text-accent"></i> Calculated Measures</span>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
-                    <div class="input-field-wrapper has-toggle">
-                        <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
-                        <button type="button" class="btn-password-toggle" onclick="togglePasswordInputVisibility('login-password', this)" title="Toggle password visibility">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block btn-glow">
-                    <span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </form>
 
-            <!-- Register Form -->
-            <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event); return false;">
-                <div class="input-group">
-                    <label for="reg-username"><i class="fa-regular fa-user"></i> Username</label>
-                    <div class="input-field-wrapper">
-                        <input type="text" id="reg-username" placeholder="Choose a username" required autocomplete="username">
+                <!-- Bento Card 2: Statistical Anomaly Detection -->
+                <div class="bento-card">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h3 class="bento-card-title">1-Click Anomaly Scanner</h3>
+                        <p class="bento-card-desc">Scan numerical columns for statistical anomalies using Interquartile Range (IQR) and Z-Score algorithms with immediate outlier row isolation.</p>
+                    </div>
+                    <div class="bento-interactive-pill-row">
+                        <span class="bento-pill"><i class="fa-solid fa-calculator text-primary"></i> 1.5x IQR Rule</span>
+                        <span class="bento-pill"><i class="fa-solid fa-chart-simple text-accent"></i> |Z| &gt; 3.0 Threshold</span>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label for="reg-email"><i class="fa-regular fa-envelope"></i> Email Address</label>
-                    <div class="input-field-wrapper">
-                        <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="reg-password"><i class="fa-solid fa-lock"></i> Password</label>
-                    <div class="input-field-wrapper has-toggle">
-                        <input type="password" id="reg-password" placeholder="Create a strong password" required autocomplete="new-password">
-                        <button type="button" class="btn-password-toggle" onclick="togglePasswordInputVisibility('reg-password', this)" title="Toggle password visibility">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block btn-glow">
-                    <span>Create Account</span> <i class="fa-solid fa-user-plus"></i>
-                </button>
-            </form>
 
-            <div class="auth-quick-demo-box">
-                <button type="button" class="btn btn-secondary btn-block" onclick="quickDemoLogin()">
-                    <i class="fa-solid fa-bolt text-primary"></i> <span>Instant Demo Login (1-Click)</span>
-                </button>
+                <!-- Bento Card 3: 32+ Chart Archetypes -->
+                <div class="bento-card">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div>
+                        <h3 class="bento-card-title">32+ Visual Archetypes</h3>
+                        <p class="bento-card-desc">Complete visualization studio featuring Waterfall financial variances, conversion funnels, treemaps, spider radars, dual-axis combos, and speedometers.</p>
+                    </div>
+                    <div class="bento-interactive-pill-row">
+                        <span class="bento-pill"><i class="fa-solid fa-chart-column text-primary"></i> Clustered Column</span>
+                        <span class="bento-pill"><i class="fa-solid fa-stairs text-secondary"></i> Waterfall</span>
+                        <span class="bento-pill"><i class="fa-solid fa-cubes-stacked text-accent"></i> Treemap</span>
+                    </div>
+                </div>
+
+                <!-- Bento Card 4: Multi-Dataset Joins -->
+                <div class="bento-card">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-link"></i>
+                    </div>
+                    <div>
+                        <h3 class="bento-card-title">Relational Dataset Joiner</h3>
+                        <p class="bento-card-desc">Merge disparate CSV and Excel spreadsheets using SQL-like Inner, Left, and Outer joins across shared key identifiers with automatic duplicate conflict resolution.</p>
+                    </div>
+                    <div class="bento-interactive-pill-row">
+                        <span class="bento-pill"><i class="fa-solid fa-circle-dot text-success"></i> Inner Join</span>
+                        <span class="bento-pill"><i class="fa-solid fa-arrow-left text-primary"></i> Left Join</span>
+                        <span class="bento-pill"><i class="fa-solid fa-arrows-split-up-and-left text-accent"></i> Outer Merge</span>
+                    </div>
+                </div>
+
+                <!-- Bento Card 5: Publication-Ready Executive Dashboards -->
+                <div class="bento-card span-2">
+                    <div class="bento-icon-box">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <div>
+                        <h3 class="bento-card-title">Publication-Ready Executive Dashboards & PDF Export</h3>
+                        <p class="bento-card-desc">Assemble pinned graphs onto an interactive canvas with customizable 1, 2, or 3-column grid layouts. Generate automated AI executive briefings and export presentation-ready vector PDFs in 1-click.</p>
+                    </div>
+                    <div class="bento-interactive-pill-row">
+                        <span class="bento-pill"><i class="fa-solid fa-table-columns text-primary"></i> Multi-Column Canvas</span>
+                        <span class="bento-pill"><i class="fa-solid fa-wand-magic-sparkles text-accent"></i> AI Executive Briefing</span>
+                        <span class="bento-pill"><i class="fa-solid fa-print text-success"></i> 1-Click PDF Export</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SAMPLE DATASETS SHOWROOM ================= -->
+        <section class="sample-showroom-section bento-section" id="sample-datasets-section">
+            <div class="bento-section-header">
+                <span class="bento-eyebrow">Instant Exploration</span>
+                <h2 class="bento-title">Curated Sample Datasets</h2>
+                <p class="bento-subtitle">Test all data cleaning, statistical modeling, and visualization features instantly with pre-loaded real-world datasets.</p>
+            </div>
+            <div class="sample-cards-grid">
+                <div class="sample-card" onclick="quickDemoLogin(); setTimeout(() => loadSampleDataset('sales_data.csv'), 600);">
+                    <div class="sample-card-header">
+                        <div class="sample-card-icon bg-primary-soft">
+                            <i class="fa-solid fa-chart-line text-primary"></i>
+                        </div>
+                        <div>
+                            <h4>Sales & Revenue Performance</h4>
+                            <span class="badge-tag">CSV • 100 Records • Financials</span>
+                        </div>
+                    </div>
+                    <p class="sample-card-desc">Comprehensive commerce dataset containing Region, Product, Units_Sold, Unit_Price, Revenue, Cost, Profit, and Dates with intentional nulls for cleaning practice.</p>
+                    <div class="sample-card-footer">
+                        <span class="sample-load-btn"><i class="fa-solid fa-rocket"></i> Load into Studio</span>
+                    </div>
+                </div>
+
+                <div class="sample-card" onclick="quickDemoLogin(); setTimeout(() => loadSampleDataset('student_scores.xlsx'), 600);">
+                    <div class="sample-card-header">
+                        <div class="sample-card-icon bg-secondary-soft">
+                            <i class="fa-solid fa-graduation-cap text-secondary"></i>
+                        </div>
+                        <div>
+                            <h4>Student Scores & Academic Performance</h4>
+                            <span class="badge-tag">Excel (.xlsx) • 100 Records • Education</span>
+                        </div>
+                    </div>
+                    <p class="sample-card-desc">Educational performance dataset featuring Student_ID, Gender, Math, Science, English, Attendance_Rate, and Final_Grade metrics.</p>
+                    <div class="sample-card-footer">
+                        <span class="sample-load-btn"><i class="fa-solid fa-rocket"></i> Load into Studio</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TECH STACK STRIP ================= -->
+        <div class="tech-stack-strip">
+            <span class="tech-stack-label"><i class="fa-solid fa-microchip text-primary"></i> Powered By Modern Architecture:</span>
+            <div class="tech-badges-group">
+                <span class="tech-badge-item"><i class="fa-brands fa-python text-primary"></i> Python 3.14 Engine</span>
+                <span class="tech-badge-item"><i class="fa-solid fa-table-cells text-secondary"></i> Pandas In-Memory ETL</span>
+                <span class="tech-badge-item"><i class="fa-solid fa-chart-simple text-accent"></i> Chart.js Interactive Canvas</span>
+                <span class="tech-badge-item"><i class="fa-solid fa-database text-success"></i> SQLite Local Storage</span>
+                <span class="tech-badge-item"><i class="fa-solid fa-fire text-amber"></i> Firebase Authentication</span>
+                <span class="tech-badge-item"><i class="fa-solid fa-file-excel text-success"></i> OpenPyXL Excel Support</span>
             </div>
         </div>
+
+        <!-- ================= LANDING FOOTER ================= -->
+        <footer class="app-website-footer" style="margin-top: 40px;">
+            <div class="footer-container">
+                <div class="footer-brand">
+                    <div class="brand-logo">
+                        <div class="brand-badge-icon small">
+                            <i class="fa-solid fa-chart-line logo-icon"></i>
+                        </div>
+                        <h3>AI <span>Visualizer</span></h3>
+                    </div>
+                    <p>Next-Generation In-Memory Dataset Intelligence, Cleaning & BI Reporting Studio</p>
+                    <div class="system-status">
+                        <span class="status-dot online"></span>
+                        <span>High-Speed Vector Processing Engine Ready</span>
+                    </div>
+                </div>
+
+                <div class="footer-links-group">
+                    <div class="footer-col">
+                        <h4>Platform Quick Links</h4>
+                        <ul>
+                            <li><a href="#" onclick="quickDemoLogin(); return false;"><i class="fa-solid fa-bolt"></i> Instant Demo Launch</a></li>
+                            <li><a href="#features-section"><i class="fa-solid fa-wand-magic-sparkles"></i> Data Cleaning Suite</a></li>
+                            <li><a href="#features-section"><i class="fa-solid fa-brain"></i> Statistical Intelligence</a></li>
+                            <li><a href="#showcase-section"><i class="fa-solid fa-chart-column"></i> 32+ Visual Archetypes</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Key Commands</h4>
+                        <ul class="shortcuts-list">
+                            <li><span>Instant Demo</span> <kbd>1-Click</kbd></li>
+                            <li><span>Theme Switch</span> <kbd>Shift+T</kbd></li>
+                            <li><span>Command Search</span> <kbd>Ctrl+K</kbd></li>
+                            <li><span>Export PDF</span> <kbd>Ctrl+P</kbd></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 AI Visualizer Platform. Built for High-Performance BI Visualization & Analytics.</p>
+            </div>
+        </footer>
+
     </div>
 
     <!-- ================= MAIN APP VIEW ================= -->
